@@ -19,6 +19,7 @@ function App() {
         </a>
         <h2>do not shit</h2>
       </header>
+      <h1>아 그렇게하는거 아닌데.</h1>
     </div>
   );
 }
