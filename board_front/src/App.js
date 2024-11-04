@@ -18,6 +18,7 @@ function App() {
           Learn React
         </a>
       </header>
+      <h1>Test중 오...</h1>
     </div>
   );
 }
