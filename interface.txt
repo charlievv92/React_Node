@@ -1,0 +1,73 @@
+SignIn(로그인)
+
+SignUp(회원가입)
+
+-request
+{
+    email: String,
+    password: String,
+    name: String,
+    
+}
+
+-response
+성공
+HTTP Status - 200 (OK)
+{
+    code: "SU",
+    message: "Success"
+}
+실패
+
+- 이메일 포맷 불일치 / 비밀번호 8자 미만 / 전화번호 포맷 불일치 / 필수 정보 미입력
+
+- 이메일 중복
+HTTP Status - 400 (Bad Request)
+{
+    code: "EE",
+    message: "Existed Email"
+}
+
+- 데이터베이스 에러
+HTTP Status - 500 (Internal Server Error)
+{
+    code: "DE",
+    message: "Database Error"
+}
+
+MyInformation(내 정보)
+
+{
+    email: String,
+    name: String,
+    rank: String,
+    position: String,
+    age: int,
+    date_of_joining: Date,
+    address: String,
+    address_detail: String
+}
+
+CurrentList(최신 게시물)
+
+SearchList(검색 게시물 리스트)
+
+BoardCRUD(게시물 생성, 수정, 삭제)
+
+{
+    work: String,
+    workers_count: int,
+    total_cost: int,
+    progress_rate: float,
+    weather: String,
+    writer: String,
+    work_date: Date,
+    publish_date: Date,
+    update_date: Date,
+    is_deleted: Boolean
+}
+
+CommentList(댓글 리스트)
+
+PostComment(댓글 쓰기)
+
