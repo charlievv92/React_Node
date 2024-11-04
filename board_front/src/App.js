@@ -17,6 +17,7 @@ function App() {
         >
           Learn React
         </a>
+        <h2>do not shit</h2>
       </header>
     </div>
   );
