@@ -18,7 +18,7 @@ function App() {
           Learn React
         </a>
       </header>
-      <h1>Test중 오...</h1>
+      <h1>아 그렇게하는거 아닌데.</h1>
     </div>
   );
 }
