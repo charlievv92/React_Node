@@ -20,6 +20,7 @@ function App() {
         <h2>do not shit</h2>
       </header>
       <h1>아 그렇게하는거 아닌데.</h1>
+      <h2>집에서 테스트.. 깃 연동 잘되나요?</h2>
     </div>
   );
 }
