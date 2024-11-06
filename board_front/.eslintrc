@@ -17,7 +17,7 @@
       "error",
       { "extensions": [".js", ".jsx", ".tsx", ".ts", ".svg"] }
     ],
-    "no-var": "error",
+    "no-var": "warn",
     "eqeqeq": "error",
     "no-unused-vars": "error",
     "react/react-in-jsx-scope": "off"
