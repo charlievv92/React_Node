@@ -28,7 +28,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint --cache src/**/*"
   },
   "eslintConfig": {
     "extends": [
@@ -49,8 +50,10 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@eslint/js": "^9.14.0",
     "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.2",
     "globals": "^15.12.0"
   }
