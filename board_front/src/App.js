@@ -1,7 +1,7 @@
 import "./App.css";
 // import Dashboard from "./dashboard/Dashboard";
-import Board from "./dashboard/Board";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Board from "./pages/Board";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // import MenuContent from "./MenuContent";
 
 function App() {

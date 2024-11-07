@@ -4,8 +4,8 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -802,
-    "scrollLeft": -663.793,
+    "scrollTop": -408.9516,
+    "scrollLeft": -39,
     "zoomLevel": 0.71,
     "show": 431,
     "database": 4,
@@ -33,11 +33,13 @@
     "tableIds": [
       "P9PTh_LKTVVE2Gnib-nyq",
       "EzSUHojrXv0LISuia-eXB",
+      "EFU_nR5Vy-wuYIgIxBkXf",
       "7-NC5nuafSBuZFwELYTzj",
       "n9eoVmEP38sVwrluBZaKg",
       "G67OKLqO7ZK2PxcN8hFB5",
       "lrBGuqTNRt5E1rInlASgP",
-      "IKwmF1RbjUaHZJPbOlDlz"
+      "IKwmF1RbjUaHZJPbOlDlz",
+      "pf2ASyiF3p6refK6uZMeS"
     ],
     "relationshipIds": [
       "PMy_kxbvDt5CsjcvhpLBY",
@@ -316,7 +318,6 @@
         "name": "file",
         "comment": "게시물 첨부파일",
         "columnIds": [
-          "ijOEGgIfxZMYm83t_UVr2",
           "QA8N5iJNnSYJKqYVW56hl",
           "pmKXErc-dHCg7kbBeLY9h",
           "42DfTzsmW8udQR71Yx00d",
@@ -324,7 +325,6 @@
         ],
         "seqColumnIds": [
           "vPgn5HeYwWLPuawR9Mf78",
-          "ijOEGgIfxZMYm83t_UVr2",
           "QA8N5iJNnSYJKqYVW56hl",
           "pmKXErc-dHCg7kbBeLY9h",
           "42DfTzsmW8udQR71Yx00d",
@@ -340,7 +340,7 @@
           "color": ""
         },
         "meta": {
-          "updateAt": 1730949645613,
+          "updateAt": 1730785109457,
           "createAt": 1730700115437
         }
       },
@@ -392,14 +392,14 @@
         ],
         "ui": {
           "x": 1533.4249,
-          "y": 325.6025,
+          "y": 328.4194,
           "zIndex": 478,
           "widthName": 60,
           "widthComment": 148,
           "color": ""
         },
         "meta": {
-          "updateAt": 1730945683405,
+          "updateAt": 1730785123959,
           "createAt": 1730774278156
         }
       }
@@ -1764,26 +1764,6 @@
           "updateAt": 1730784805816,
           "createAt": 1730774742229
         }
-      },
-      "ijOEGgIfxZMYm83t_UVr2": {
-        "id": "ijOEGgIfxZMYm83t_UVr2",
-        "tableId": "lrBGuqTNRt5E1rInlASgP",
-        "name": "file_id",
-        "comment": "첨부파일 PK",
-        "dataType": "INT",
-        "default": "AUTO_INCREMENT",
-        "options": 8,
-        "ui": {
-          "keys": 0,
-          "widthName": 60,
-          "widthComment": 67,
-          "widthDataType": 60,
-          "widthDefault": 102
-        },
-        "meta": {
-          "updateAt": 1730949674331,
-          "createAt": 1730949641568
-        }
       }
     },
     "relationshipEntities": {
@@ -1947,7 +1927,7 @@
             "QA8N5iJNnSYJKqYVW56hl"
           ],
           "x": 1276.8418153286366,
-          "y": 929.7037287977596,
+          "y": 917.7037287977596,
           "direction": 1
         },
         "meta": {
@@ -2280,7 +2260,7 @@
     "EFU_nR5Vy-wuYIgIxBkXf": [
       "tableEntities",
       1726833646303,
-      1730945685439,
+      -1,
       {
         "name": 1726833658152,
         "ui.color": 1726834313864
@@ -2858,7 +2838,7 @@
     "pf2ASyiF3p6refK6uZMeS": [
       "tableEntities",
       1730774278155,
-      1730945684375,
+      -1,
       {
         "name": 1730774288919,
         "comment": 1730774497568
@@ -2896,18 +2876,6 @@
         "dataType": 1730784805815,
         "options(notNull)": 1730774777746,
         "comment": 1730774810029
-      }
-    ],
-    "ijOEGgIfxZMYm83t_UVr2": [
-      "tableColumnEntities",
-      1730949641567,
-      -1,
-      {
-        "name": 1730949666675,
-        "dataType": 1730949659753,
-        "options(notNull)": 1730949659753,
-        "default": 1730949659753,
-        "comment": 1730949674330
       }
     ]
   }
