@@ -1,10 +1,11 @@
 import "./App.css";
-import Dashboard from "./dashboard/Dashboard";
+// import Dashboard from "./dashboard/Dashboard";
+import Board from "./dashboard/Board";
 
 function App() {
   return (
     <div>
-      <Dashboard />
+      <Board />
     </div>
   );
 }
