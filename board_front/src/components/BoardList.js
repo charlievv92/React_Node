@@ -45,13 +45,13 @@ import CustomizedDataGrid from "./CustomizedDataGrid";
 //   },
 // ];
 
-export default function MainGrid() {
+export default function BoardList() {
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
 
       <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
-        Details
+        Board List
       </Typography>
       <Grid container spacing={2} columns={12}>
         <Grid size={{ xs: 12, sm: 12 }}>

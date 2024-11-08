@@ -6,7 +6,8 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import AppNavbar from "../components/AppNavbar";
 import Header from "../components/header/Header";
-import MainGrid from "../components/MainGrid";
+import BoardWrite from "../components/BoardWrite";
+// import BoardList from "../components/BoardList";
 import SideMenu from "../components/SideMenu";
 import AppTheme from "../shared-theme/AppTheme";
 import {
@@ -23,7 +24,7 @@ const xThemeComponents = {
   ...treeViewCustomizations,
 };
 
-export default function Dashboard(props) {
+export default function Board(props) {
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
       <CssBaseline enableColorScheme />
@@ -51,7 +52,8 @@ export default function Dashboard(props) {
             }}
           >
             <Header />
-            <MainGrid />
+            <BoardWrite />
+            {/* <BoardList /> */}
           </Stack>
         </Box>
       </Box>
