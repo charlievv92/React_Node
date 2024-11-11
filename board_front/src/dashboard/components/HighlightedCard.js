@@ -13,7 +13,7 @@ export default function HighlightedCard() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card sx={{ height: '100%', border: '1px solid'}}>
       <CardContent>
         <InsightsRoundedIcon />
         <Typography
@@ -22,10 +22,10 @@ export default function HighlightedCard() {
           gutterBottom
           sx={{ fontWeight: '600' }}
         >
-          Explore your data
+          이곳엔 TodoList의 최근 글 목록을 띄울 예정입니다
         </Typography>
         <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
-          Uncover performance and visitor insights with our data wizardry.
+          HighlightedCard 컴포넌트에서 작업
         </Typography>
         <Button
           variant="contained"

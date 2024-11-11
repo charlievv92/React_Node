@@ -16,10 +16,11 @@ export default function PageViewsBarChart() {
   ];
 
   return (
-    <Card variant="outlined" sx={{ width: '100%' }}>
+    <Card variant="outlined" sx={{ width: '100%', border: '1px solid'}}>
       <CardContent>
         <Typography component="h2" variant="subtitle2" gutterBottom>
-          Page views and downloads
+          이곳은 아직 무엇을 넣을지는 모르겠으니 적절히 분리해 보았습니다<br/>
+          이 항목 포함 아래것을은 아직 미정입니다.
         </Typography>
         <Stack sx={{ justifyContent: 'space-between' }}>
           <Stack
