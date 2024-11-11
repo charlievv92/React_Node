@@ -3,8 +3,14 @@ import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 // import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import QuillEditor from "./QuillEditor";
+// import Copyright from "../internals/components/Copyright";
+// import ChartUserByCountry from "./ChartUserByCountry";
+// import CustomizedTreeView from "./CustomizedTreeView";
+import CustomizedDataGrid from "../components/CustomizedDataGrid";
+// import HighlightedCard from './HighlightedCard';
+// import PageViewsBarChart from './PageViewsBarChart';
+// import SessionsChart from './SessionsChart';
+// import StatCard from './StatCard';
 
 // const data = [
 //   {
@@ -39,49 +45,17 @@ import QuillEditor from "./QuillEditor";
 //   },
 // ];
 
-export default function BoardWrite() {
+export default function BoardList() {
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
 
-      <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
-        Board Write
+      <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
+        Board List
       </Typography>
       <Grid container spacing={2} columns={12}>
         <Grid size={{ xs: 12, sm: 12 }}>
-          {/* <Box
-            component="form"
-            sx={{
-              "& .MuiTextField-root": { m: 1, width: "100ch" },
-            }}
-            noValidate
-            autoComplete="off"
-          > */}
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            제목
-          </Typography>
-          <TextField
-            // minRows={20}
-            id="board-title"
-            variant="outlined"
-            fullWidth
-          />
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            내용
-          </Typography>
-          <QuillEditor />
-          {/* <TextField
-            // minRows={20}
-            id="board-content"
-            variant="outlined"
-            fullWidth
-            multiline
-            rows={26}
-            sx={{
-              "& .MuiInputBase-root": { minHeight: "550px" },
-            }}
-          /> */}
-          {/* </Box> */}
+          <CustomizedDataGrid />
         </Grid>
         {/* <Grid size={{ xs: 12, lg: 3 }}>
           <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>

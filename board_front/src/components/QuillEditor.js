@@ -1,11 +1,5 @@
-import React, {
-  ReactChild,
-  ReactFragment,
-  RefObject,
-  useMemo,
-  useState,
-} from "react";
-import ReactQuill, { Quill } from "react-quill";
+import React, { useMemo, useState } from "react";
+import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 const formats = [

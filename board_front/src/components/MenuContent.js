@@ -1,5 +1,5 @@
 import * as React from "react";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -15,16 +15,17 @@ import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import HelpRoundedIcon from "@mui/icons-material/HelpRounded";
 
 const mainListItems = [
-  { text: "Home", icon: <HomeRoundedIcon /> },
-  { text: "Board", icon: <AnalyticsRoundedIcon /> },
-  { text: "Clients", icon: <PeopleRoundedIcon /> },
-  { text: "Tasks", icon: <AssignmentRoundedIcon /> },
+  { text: "홈", icon: <HomeRoundedIcon />, routePath: "/" },
+  { text: "게시판", icon: <AnalyticsRoundedIcon />, routePath: "/board" },
+  { text: "할일 리스트", icon: <PeopleRoundedIcon />, routePath: "/todolist" },
+  { text: "로그인", icon: <AssignmentRoundedIcon />, routePath: "/loginpage" },
 ];
+//이곳의 rouPath에 원하는 주소 설정
 
 const secondaryListItems = [
-  { text: "Settings", icon: <SettingsRoundedIcon /> },
-  { text: "About", icon: <InfoRoundedIcon /> },
-  { text: "Feedback", icon: <HelpRoundedIcon /> },
+  { text: "마이페이지", icon: <SettingsRoundedIcon />, routePath: "/mypage" },
+  { text: "About", icon: <InfoRoundedIcon />, routePath: "/about" },
+  { text: "문의하기", icon: <HelpRoundedIcon />, routePath: "/help" },
 ];
 
 export default function MenuContent() {
@@ -33,7 +34,11 @@ export default function MenuContent() {
       <List dense>
         {mainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: "block" }}>
-            <ListItemButton selected={index === 0}>
+            <ListItemButton
+              selected={index === 0}
+              component={Link}
+              to={item.routePath}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
@@ -44,7 +49,7 @@ export default function MenuContent() {
       <List dense>
         {secondaryListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: "block" }}>
-            <ListItemButton>
+            <ListItemButton component={Link} to={item.routePath}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>

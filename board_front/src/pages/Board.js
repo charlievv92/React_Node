@@ -6,7 +6,8 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import AppNavbar from "../components/AppNavbar";
 import Header from "../components/header/Header";
-import BoardWrite from "../components/BoardWrite";
+// import BoardWrite from "../components/BoardWrite";
+import { Outlet } from "react-router-dom";
 // import BoardList from "../components/BoardList";
 import SideMenu from "../components/SideMenu";
 import AppTheme from "../shared-theme/AppTheme";
@@ -52,7 +53,8 @@ export default function Board(props) {
             }}
           >
             <Header />
-            <BoardWrite />
+            <Outlet />
+            {/* <BoardWrite /> */}
             {/* <BoardList /> */}
           </Stack>
         </Box>
