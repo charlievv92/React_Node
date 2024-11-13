@@ -1,11 +1,12 @@
 import "./App.css";
-import Loginpage from "./pages/Loginpage";
 // import Dashboard from "./dashboard/Dashboard";
 import Board from "./pages/Board";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainGrid from "./dashboard/components/MainGrid";
 import Mypage from "./pages/Mypage";
 import BoardWrite from "./pages/BoardWrite";
+import SignIn from "./login/sign-in/SignIn";
+import Signup from "./login/sign-up/Signup";
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
             <Route path="/mypage" element={<Mypage />}></Route>
             <Route path="/board" element={<BoardWrite />}></Route>
           </Route>
-          <Route path="/loginpage" element={<Loginpage />} />
+          <Route path="/loginpage" element={<SignIn />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </BrowserRouter>
     </div>
