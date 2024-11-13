@@ -1,6 +1,6 @@
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
-import Chip from "@mui/material/Chip";
+// import Chip from "@mui/material/Chip";
 
 import { SparkLineChart } from "@mui/x-charts/SparkLineChart";
 
@@ -91,7 +91,7 @@ export const columns = [
   //   renderCell: (params) => renderStatus(params.value),
   // },
   {
-    field: "userEmail",
+    field: "email",
     headerName: "이메일",
     headerAlign: "center",
     align: "left",
@@ -107,7 +107,7 @@ export const columns = [
     minWidth: 100,
   },
   {
-    field: "publishDate",
+    field: "publish_date",
     headerName: "작성일",
     headerAlign: "center",
     align: "center",

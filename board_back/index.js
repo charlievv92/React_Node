@@ -21,7 +21,7 @@ const db = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "dev241101!@34",
-  database: "test",
+  database: "board",
 });
 
 app.get("/", (req, res) => {
@@ -50,6 +50,25 @@ app.post("/api/posts", (req, res) => {
       }
     }
   );
+
+  console.log("Request received");
+});
+
+// 게시물 리스트 조회
+app.get("/api/posts", (req, res) => {
+  const sqlQuery =
+    "SELECT board_id, title, views, publish_date, email FROM board ORDER BY publish_date DESC";
+  db.query(sqlQuery, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    } else {
+      if (results.length === 0) {
+        return res.status(404).send("No data found");
+      }
+      res.json(results);
+    }
+  });
 
   console.log("Request received");
 });
