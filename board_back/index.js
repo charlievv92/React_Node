@@ -40,7 +40,7 @@ app.post("/api/posts", (req, res) => {
     "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
   db.query(
     sqlQuery,
-    [title, content, 0, "맑음", new Date(), "abc@aaa.com", "200.200.1.1"],
+    [title, content, 0, "맑음", new Date(), "aaa@aaa.com", "200.200.1.1"],
     (err, result) => {
       if (err) {
         console.error(err);

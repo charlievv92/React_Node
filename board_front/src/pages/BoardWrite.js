@@ -7,6 +7,7 @@ import TextField from "@mui/material/TextField";
 import QuillEditor from "../components/QuillEditor";
 import { Button, Stack } from "@mui/material";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 // const data = [
 //   {
@@ -44,7 +45,9 @@ import axios from "axios";
 export default function BoardWrite() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const navigate = useNavigate();
 
+  // TODO: 게시물 작성 유효성 검사 기능 추가
   const handleContentChange = (value) => {
     setContent(value);
   };
@@ -57,6 +60,7 @@ export default function BoardWrite() {
       console.log("title : ", title);
       console.log("content : ", content);
       console.log("Post created!!! ", response.data);
+      navigate("/boardList");
     } catch (error) {
       console.error("Error creating post!!! ", error);
     }
@@ -117,12 +121,12 @@ export default function BoardWrite() {
         <Stack
           direction="row"
           justifyContent="flex-end"
-          sx={{ width: "100%" }}
+          sx={{ width: "100%", mt: 4 }}
           spacing={2}
         >
           <Button onClick={handleSubmit}>작성</Button>
           {/* <Button disabled>Disabled</Button> */}
-          <Button href="#text-buttons">삭제</Button>
+          <Button href="#text-buttons">리스트</Button>
         </Stack>
 
         {/* <Grid size={{ xs: 12, lg: 3 }}>

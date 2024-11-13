@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainGrid from "./dashboard/components/MainGrid";
 import Mypage from "./pages/Mypage";
 import BoardWrite from "./pages/BoardWrite";
+import BoardList from "./pages/BoardList";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/" element={<MainGrid />}></Route>
             <Route path="/mypage" element={<Mypage />}></Route>
             <Route path="/board" element={<BoardWrite />}></Route>
+            <Route path="/boardList" element={<BoardList />}></Route>
           </Route>
           <Route path="/loginpage" element={<Loginpage />} />
         </Routes>
