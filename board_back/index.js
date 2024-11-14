@@ -1,11 +1,14 @@
 const express = require("express");
+const { swaggerUI, swaggerDocs } = require("./modules/swagger");
 const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const PORT = process.env.port || 8080;
+const PORT = process.env.port || 8000;
 
+// TODO: SWAGGER 설정 추가하기(20241114 kwc)
+// TODO: 게시물 상세 조회 API 추가하기(20241114 kwc)
 // CORS 설정
 app.use(
   cors({
@@ -15,13 +18,16 @@ app.use(
   })
 );
 
+// swagger UI 설정
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+
 app.use(bodyParser.json());
 
 const db = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "dev241101!@34",
-  database: "board",
+  database: "test",
 });
 
 app.get("/", (req, res) => {
@@ -55,6 +61,20 @@ app.post("/api/posts", (req, res) => {
 });
 
 // 게시물 리스트 조회
+/**
+ * @swagger
+ * /api/posts:
+ *   get:
+ *     summary: 게시물 리스트 조회
+ *     tags:
+ *     - API Sample
+ *     description: 게시물 전체 리스트를 조회합니다
+ *     produces:
+ *     - application/json
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 app.get("/api/posts", (req, res) => {
   const sqlQuery =
     "SELECT board_id, title, views, publish_date, email FROM board ORDER BY publish_date DESC";
@@ -75,4 +95,6 @@ app.get("/api/posts", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`running on port ${PORT}`);
+  // 서버 실행 후 명세서를 확인할 수 있는 URL
+  console.log("Swagger docs available at http://localhost:8000/api-docs");
 });

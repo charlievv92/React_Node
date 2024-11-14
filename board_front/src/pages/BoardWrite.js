@@ -47,7 +47,7 @@ export default function BoardWrite() {
   const [content, setContent] = useState("");
   const navigate = useNavigate();
 
-  // TODO: 게시물 작성 유효성 검사 기능 추가
+  // TODO: 게시물 작성 유효성 검사 기능 추가(20241113 kwc)
   const handleContentChange = (value) => {
     setContent(value);
   };

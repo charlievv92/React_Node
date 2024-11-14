@@ -50,14 +50,18 @@ export default function BoardList() {
   const [boardList, setBoardList] = useState([]);
 
   const getBoardList = async () => {
-    const resp = await axios.get("//localhost:8080/api/posts"); // 2) 게시글 목록 데이터에 할당
+    const resp = await axios.get("localhost:8080/api/posts"); // 2) 게시글 목록 데이터에 할당
     setBoardList(resp.data); // 3) boardList 변수에 할당
-    console.log(resp.data);
+    // console.log(boardList);
   };
 
   useEffect(() => {
     getBoardList(); // 1) 게시글 목록 조회 함수 호출
   }, []);
+
+  useEffect(() => {
+    console.log(boardList); // 상태가 변경될 때마다 로그 출력
+  }, [boardList]);
 
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
