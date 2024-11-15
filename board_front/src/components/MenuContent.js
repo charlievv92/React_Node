@@ -17,7 +17,7 @@ import HelpRoundedIcon from "@mui/icons-material/HelpRounded";
 const mainListItems = [
   { text: "홈", icon: <HomeRoundedIcon />, routePath: "/" },
   { text: "게시판", icon: <AnalyticsRoundedIcon />, routePath: "/articles" },
-  { text: "할일 리스트", icon: <PeopleRoundedIcon />, routePath: "/todolist" },
+  { text: "할일 리스트", icon: <PeopleRoundedIcon />, routePath: "/todos" },
   { text: "로그인", icon: <AssignmentRoundedIcon />, routePath: "/loginpage" },
 ];
 //이곳의 rouPath에 원하는 주소 설정

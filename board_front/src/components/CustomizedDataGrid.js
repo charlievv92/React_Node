@@ -1,8 +1,16 @@
 import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { columns } from "../internals/data/gridData";
+import { useNavigate } from "react-router-dom";
 
 export default function CustomizedDataGrid({ rows }) {
+  const navigate = useNavigate();
+
+  const handleRowClick = (params) => {
+    console.log(params.row);
+    navigate(`/articles/${params.row.board_id}`);
+  };
+
   return (
     <DataGrid
       autoHeight
@@ -19,6 +27,7 @@ export default function CustomizedDataGrid({ rows }) {
       pageSizeOptions={[10, 20, 50]}
       disableColumnResize
       density="compact"
+      onRowClick={handleRowClick}
       slotProps={{
         filterPanel: {
           filterFormProps: {

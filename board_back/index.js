@@ -7,8 +7,6 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.port || 8000;
 
-// TODO: SWAGGER 설정 추가하기(20241114 kwc)
-// TODO: 게시물 상세 조회 API 추가하기(20241114 kwc)
 // CORS 설정
 app.use(
   cors({
@@ -79,6 +77,44 @@ app.get("/api/posts", (req, res) => {
   const sqlQuery =
     "SELECT board_id, title, views, publish_date, email FROM board ORDER BY publish_date DESC";
   db.query(sqlQuery, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    } else {
+      if (results.length === 0) {
+        return res.status(404).send("No data found");
+      }
+      res.json(results);
+    }
+  });
+
+  console.log("Request received");
+});
+
+/**
+ * @swagger
+ * /api/posts/{board_id}:
+ *   get:
+ *     summary: 게시물 상세 조회
+ *     tags:
+ *     - 게시판 API
+ *     description: 게시물 상세 데이터를 조회합니다
+ *     produces:
+ *     - application/json
+ *     parameters:
+ *     - name: board_id
+ *       in: path
+ *       description: 게시물 ID
+ *       schema:
+ *          type: integer
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+app.get("/api/posts/:board_id", (req, res) => {
+  const board_id = req.params.board_id;
+  const sqlQuery = "SELECT * FROM board WHERE board_id = ?";
+  db.query(sqlQuery, [board_id], (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).send(err);
