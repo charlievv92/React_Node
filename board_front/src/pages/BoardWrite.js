@@ -1,10 +1,13 @@
-import * as React from "react";
+import React, { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 // import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import QuillEditor from "../components/QuillEditor";
+import { Button, Stack } from "@mui/material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 // const data = [
 //   {
@@ -40,6 +43,28 @@ import QuillEditor from "../components/QuillEditor";
 // ];
 
 export default function BoardWrite() {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const navigate = useNavigate();
+
+  // TODO: 게시물 작성 유효성 검사 기능 추가(20241113 kwc)
+  const handleContentChange = (value) => {
+    setContent(value);
+  };
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/posts", {
+        title: title,
+        content: content,
+      });
+      console.log("title : ", title);
+      console.log("content : ", content);
+      console.log("Post created!!! ", response.data);
+      navigate("/boardList");
+    } catch (error) {
+      console.error("Error creating post!!! ", error);
+    }
+  };
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
@@ -63,13 +88,22 @@ export default function BoardWrite() {
           <TextField
             // minRows={20}
             id="board-title"
-            variant="outlined"
+            variant="standard"
             fullWidth
+            sx={{
+              "& .MuiInputBase-root": {
+                border: "1px",
+                borderTopRightRadius: "none",
+                borderTopLeftRadius: "none",
+              },
+            }}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
           <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
             내용
           </Typography>
-          <QuillEditor />
+          <QuillEditor value={content} onChange={handleContentChange} />
           {/* <TextField
             // minRows={20}
             id="board-content"
@@ -83,6 +117,18 @@ export default function BoardWrite() {
           /> */}
           {/* </Box> */}
         </Grid>
+
+        <Stack
+          direction="row"
+          justifyContent="flex-end"
+          sx={{ width: "100%", mt: 4 }}
+          spacing={2}
+        >
+          <Button onClick={handleSubmit}>작성</Button>
+          {/* <Button disabled>Disabled</Button> */}
+          <Button href="#text-buttons">리스트</Button>
+        </Stack>
+
         {/* <Grid size={{ xs: 12, lg: 3 }}>
           <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>
             <CustomizedTreeView />

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -24,10 +24,17 @@ const formats = [
   "video",
 ];
 
-export default function QuillEditor() {
-  const [values, setValues] = useState("");
+export default function QuillEditor({ value, onChange }) {
+  // const quillRef = useRef(null);
 
-  console.log(values); // Use the 'values' state variable
+  // useEffect(() => {
+  //   if (quillRef.current) {
+  //     console.log(quillRef.current);
+  //   }
+  // }, []);
+  // const [values, setValues] = useState("");
+
+  // console.log(values); // Use the 'values' state variable
 
   const modules = useMemo(() => {
     return {
@@ -54,7 +61,9 @@ export default function QuillEditor() {
       theme="snow"
       modules={modules}
       formats={formats}
-      onChange={setValues}
+      value={value}
+      onChange={onChange}
+      style={{ height: "500px" }}
     />
   );
 }

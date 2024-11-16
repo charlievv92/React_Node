@@ -1,4 +1,5 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 // import Stack from "@mui/material/Stack";
@@ -46,6 +47,22 @@ import CustomizedDataGrid from "../components/CustomizedDataGrid";
 // ];
 
 export default function BoardList() {
+  const [boardList, setBoardList] = useState([]);
+
+  const getBoardList = async () => {
+    const resp = await axios.get("localhost:8080/api/posts"); // 2) 게시글 목록 데이터에 할당
+    setBoardList(resp.data); // 3) boardList 변수에 할당
+    // console.log(boardList);
+  };
+
+  useEffect(() => {
+    getBoardList(); // 1) 게시글 목록 조회 함수 호출
+  }, []);
+
+  useEffect(() => {
+    console.log(boardList); // 상태가 변경될 때마다 로그 출력
+  }, [boardList]);
+
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
@@ -55,7 +72,7 @@ export default function BoardList() {
       </Typography>
       <Grid container spacing={2} columns={12}>
         <Grid size={{ xs: 12, sm: 12 }}>
-          <CustomizedDataGrid />
+          <CustomizedDataGrid rows={boardList} />
         </Grid>
         {/* <Grid size={{ xs: 12, lg: 3 }}>
           <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>
