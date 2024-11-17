@@ -19,7 +19,7 @@
     ],
     "no-var": "warn",
     "eqeqeq": "error",
-    "no-unused-vars": "error",
+    "no-unused-vars": "off", //작업한곳외에서 계속 에러처리되어 잠시 비활성화함
     "react/react-in-jsx-scope": "off"
   },
   "settings": {

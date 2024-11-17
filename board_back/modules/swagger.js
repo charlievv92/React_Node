@@ -15,7 +15,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./index.js"], // 실제 API 경로 넣기
+  apis: ["./index.js", "./routes/authRouter.js"], // 실제 API 경로 넣기
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);

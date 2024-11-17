@@ -1,11 +1,13 @@
+require('dotenv').config(); // .env파일 읽기
 const express = require("express");
 const { swaggerUI, swaggerDocs } = require("./modules/swagger");
-const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
+const db = require('./config/db');
 const app = express();
 const PORT = process.env.port || 8000;
+const passport = require('./config/passport');
+const authRouter = require('./routes/authRouter');
 
 // TODO: SWAGGER 설정 추가하기(20241114 kwc)
 // TODO: 게시물 상세 조회 API 추가하기(20241114 kwc)
@@ -20,15 +22,12 @@ app.use(
 
 // swagger UI 설정
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
-
+app.use(passport.initialize());
 app.use(bodyParser.json());
 
-const db = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "dev241101!@34",
-  database: "test",
-});
+//라우팅 별도 파일로 분리
+app.use('/api/auth', authRouter);
+
 
 app.get("/", (req, res) => {
   const sqlQuery = "INSERT INTO requested (rowno) VALUES (1)";
@@ -93,23 +92,10 @@ app.get("/api/posts", (req, res) => {
   console.log("Request received");
 });
 
-// TODO: DB테스트는완료 하지만 index외 다른곳에서 export해야하는지 확인할것, passport로 로그인 작업하기 회원가입은 그후에,
-app.get("/testmys", (req, res) => {
-  const sqlQuery = "INSERT INTO board VALUES (6,'뭐지','ㅋㅋ',0,'흐림','2024-11-24',NULL,false,'aaa@aaa.com','192.000.111.111',NULL)";
-  
-  db.query(sqlQuery, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send("Database error");
-    }
-
-    console.log('DB INSERT');
-    res.send("Data inserted successfully!"); // 성공 메시지 전송
-  });
-});
 
 app.listen(PORT, () => {
   console.log(`running on port ${PORT}`);
   // 서버 실행 후 명세서를 확인할 수 있는 URL
   console.log("Swagger docs available at http://localhost:8000/api-docs");
 });
+
