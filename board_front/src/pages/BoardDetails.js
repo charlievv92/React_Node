@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 // import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
+// import TextField from "@mui/material/TextField";
 // import QuillEditor from "../components/QuillEditor";
 import { Button, CircularProgress, Stack } from "@mui/material";
 import axios from "axios";
@@ -46,6 +46,7 @@ export default function BoardDetails() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
+  const contentRef = useRef(null);
   const navigate = useNavigate();
   const { board_id } = useParams();
 
@@ -56,8 +57,8 @@ export default function BoardDetails() {
         `http://localhost:8000/api/posts/${board_id}`
       );
       console.log("Article details : ", response.data);
-      setTitle(response.data.title);
-      setContent(response.data.content);
+      setTitle(response.data[0].title || "");
+      setContent(response.data[0].contents || "");
     } catch (error) {
       console.error("Error getting article details!!! ", error);
     } finally {
@@ -68,6 +69,14 @@ export default function BoardDetails() {
   useEffect(() => {
     getArticleDetails();
   }, [board_id]);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.innerHTML = ""; // 기존 내용을 초기화
+      contentRef.current.insertAdjacentHTML("beforeend", content); // 새로운 내용을 삽입
+    }
+  }, [content]);
+
   const handleSubmit = async () => {
     try {
       const response = await axios.post("http://localhost:8080/api/posts", {
@@ -106,12 +115,15 @@ export default function BoardDetails() {
           <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
             제목
           </Typography>
-          <TextField
+          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
+            {title}
+          </Typography>
+          {/* <TextField
             // minRows={20}
             id="board-title"
             variant="standard"
             fullWidth
-            disabled={true}
+            // disabled={true}
             sx={{
               "& .MuiInputBase-root": {
                 border: "1px",
@@ -121,7 +133,7 @@ export default function BoardDetails() {
             }}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-          />
+          /> */}
           <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
             내용
           </Typography>
@@ -140,13 +152,14 @@ export default function BoardDetails() {
             }}
           /> */}
           <div
+            ref={contentRef}
             style={{
               border: "1px solid #ccc",
               padding: "10px",
               borderRadius: "4px",
               minHeight: "200px",
             }}
-            dangerouslySetInnerHTML={{ __html: content }}
+            // dangerouslySetInnerHTML={{ __html: content }}
           />
           {/* </Box> */}
         </Grid>
