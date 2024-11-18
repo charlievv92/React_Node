@@ -49,12 +49,15 @@ export default function BoardDetails() {
   const contentRef = useRef(null);
   const navigate = useNavigate();
   const { board_id } = useParams();
+  const serverUrl = process.env.REACT_APP_SERVER_URL;
 
   // TODO: 게시물 상세 조회시 데이터 보이지 않는 문제 해결(20241115 kwc)
   const getArticleDetails = async () => {
     try {
+      console.log(serverUrl);
+
       const response = await axios.get(
-        `http://localhost:8000/api/posts/${board_id}`
+        `${serverUrl}/api/board/posts/${board_id}`
       );
       console.log("Article details : ", response.data);
       setTitle(response.data[0].title || "");
@@ -79,10 +82,13 @@ export default function BoardDetails() {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/api/posts", {
-        title: title,
-        content: content,
-      });
+      const response = await axios.post(
+        "http://localhost:8080/api/board/posts",
+        {
+          title: title,
+          content: content,
+        }
+      );
       console.log("title : ", title);
       console.log("content : ", content);
       console.log("Post created!!! ", response.data);

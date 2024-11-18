@@ -53,10 +53,13 @@ export default function BoardWrite() {
   };
   const handleSubmit = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/api/posts", {
-        title: title,
-        content: content,
-      });
+      const response = await axios.post(
+        "http://localhost:8080/api/board/posts",
+        {
+          title: title,
+          content: content,
+        }
+      );
       console.log("title : ", title);
       console.log("content : ", content);
       console.log("Post created!!! ", response.data);

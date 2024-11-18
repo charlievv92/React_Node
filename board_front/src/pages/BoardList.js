@@ -50,7 +50,7 @@ export default function BoardList() {
   const [boardList, setBoardList] = useState([]);
 
   const getBoardList = async () => {
-    const resp = await axios.get("http://localhost:8000/api/posts"); // 2) 게시글 목록 데이터에 할당
+    const resp = await axios.get("http://localhost:8000/api/board/posts"); // 2) 게시글 목록 데이터에 할당
     setBoardList(resp.data); // 3) boardList 변수에 할당
     // console.log(boardList);
   };
