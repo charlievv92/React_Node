@@ -11,11 +11,11 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://localhost:8000", // IP와 포트번호 설정
+        url: process.env.NODE_APP_API_URL, // IP와 포트번호 설정
       },
     ],
   },
-  apis: ["./index.js"], // 실제 API 경로 넣기
+  apis: ["./index.js", "./routes/authRouter.js"], // 실제 API 경로 넣기
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);

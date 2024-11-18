@@ -1,11 +1,13 @@
+require("dotenv").config(); // .env파일 읽기
 const express = require("express");
 const { swaggerUI, swaggerDocs } = require("./modules/swagger");
-const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
+const db = require("./config/db");
 const app = express();
 const PORT = process.env.port || 8000;
+const passport = require("./config/passport");
+const authRouter = require("./routes/authRouter");
 
 // CORS 설정
 app.use(
@@ -18,15 +20,11 @@ app.use(
 
 // swagger UI 설정
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
-
+app.use(passport.initialize());
 app.use(bodyParser.json());
 
-const db = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "dev241101!@34",
-  database: "test",
-});
+//라우팅 별도 파일로 분리
+app.use("/api/auth", authRouter);
 
 app.get("/", (req, res) => {
   const sqlQuery = "INSERT INTO requested (rowno) VALUES (1)";

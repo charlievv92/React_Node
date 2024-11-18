@@ -10,6 +10,7 @@ import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
 import CardAlert from './CardAlert';
 import OptionsMenu from './OptionsMenu';
+import { useAuth } from '../auth/AuthContext';
 
 const drawerWidth = 240;
 
@@ -25,6 +26,10 @@ const Drawer = styled(MuiDrawer)({
 });
 
 export default function SideMenu() {
+
+  //로그인 여부를 확인함
+  const { isLoggedIn, email, userName, authCode, clientIp } = useAuth();
+
   return (
     <Drawer
       variant="permanent"
@@ -35,15 +40,34 @@ export default function SideMenu() {
         },
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          mt: 'calc(var(--template-frame-height, 0px) + 4px)',
-          p: 1.5,
-        }}
-      >
+      {isLoggedIn ?(
+        /*
+        <Box
+          sx={{
+            display: 'flex',
+            mt: 'calc(var(--template-frame-height, 0px) + 4px)',
+            p: 1.5,
+          }}
+        >
         <SelectContent />
-      </Box>
+        </Box>
+        */
+        <div>
+          <h3>현재접속정보</h3><br/>
+          이메일:{email}<br/>
+          이  름:{userName}<br/>
+          권  한:{authCode}<br/>
+          아이피:{clientIp}<br/>
+        </div>
+        
+      ) : (
+        <div>
+          <h2 style={{textAlign: 'center'}}>
+            로그인하십시오 휴먼</h2>
+        </div>
+      )}
+      
+
       <Divider />
       <MenuContent />
       <CardAlert />
