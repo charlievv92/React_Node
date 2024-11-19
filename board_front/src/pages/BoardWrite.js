@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 // import Stack from "@mui/material/Stack";
@@ -7,7 +7,7 @@ import TextField from "@mui/material/TextField";
 import QuillEditor from "../components/QuillEditor";
 import { Button, Stack } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // const data = [
 //   {
@@ -43,10 +43,19 @@ import { useNavigate } from "react-router-dom";
 // ];
 
 export default function BoardWrite() {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const location = useLocation();
+  const { board_id } = useParams();
+  const [title, setTitle] = useState(location.state?.title || "");
+  const [content, setContent] = useState(location.state?.content || "");
+
+  const [isEditMode, setIsEditMode] = useState(false);
   const navigate = useNavigate();
 
+  // TODO: 게시물 수정 기능 추가(20241119 kwc)
+  // const setArticle = () => {
+  //   setTitle(article.title);
+  //   setContent(article.content);
+  // };
   // TODO: 게시물 작성 유효성 검사 기능 추가(20241113 kwc)
   const handleContentChange = (value) => {
     setContent(value);
@@ -68,6 +77,10 @@ export default function BoardWrite() {
       console.error("Error creating post!!! ", error);
     }
   };
+
+  // useEffect(() => {
+  //   if()
+  // })
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}

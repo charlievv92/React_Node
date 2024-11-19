@@ -25,6 +25,10 @@ function App() {
                 path="/articles/:board_id"
                 element={<BoardDetails />}
               ></Route>
+              <Route
+                path="/articles/modify/:board_id"
+                element={<BoardWrite />}
+              ></Route>
             </Route>
             <Route path="/loginpage" element={<SignIn />} />
             <Route path="/signup" element={<Signup />} />
