@@ -12,14 +12,14 @@ import { useAuth } from "../auth/AuthContext";
 
 export default function BoardDetails() {
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [contents, setContents] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
 
   // const [article, setArticle] = useState({});
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
   const { isLoggedIn, email, clientIp } = useAuth();
 
-  const contentRef = useRef(null);
+  const contentsRef = useRef(null);
   const navigate = useNavigate();
   const { board_id } = useParams();
 
@@ -34,7 +34,7 @@ export default function BoardDetails() {
       );
       console.log("Article details : ", response.data);
       setTitle(response.data[0].title || "");
-      setContent(response.data[0].contents || "");
+      setContents(response.data[0].contents || "");
       setAuthorEmail(response.data[0].email || "");
     } catch (error) {
       console.error("Error getting article details!!! ", error);
@@ -48,7 +48,7 @@ export default function BoardDetails() {
       alert("작성자만 수정할 수 있습니다.");
       return;
     }
-    navigate(`/articles/modify/${board_id}`, { state: { title, content } });
+    navigate(`/articles/modify/${board_id}`, { state: { title, contents } });
   };
 
   useEffect(() => {
@@ -56,11 +56,11 @@ export default function BoardDetails() {
   }, [board_id]);
 
   useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.innerHTML = ""; // 기존 내용을 초기화
-      contentRef.current.insertAdjacentHTML("beforeend", content); // 새로운 내용을 삽입
+    if (contentsRef.current) {
+      contentsRef.current.innerHTML = ""; // 기존 내용을 초기화
+      contentsRef.current.insertAdjacentHTML("beforeend", contents); // 새로운 내용을 삽입
     }
-  }, [content]);
+  }, [contents]);
 
   if (loading) {
     return <CircularProgress />; // 로딩 중일 때 로딩 스피너 표시
@@ -122,7 +122,7 @@ export default function BoardDetails() {
             }}
           /> */}
           <div
-            ref={contentRef}
+            ref={contentsRef}
             style={{
               border: "1px solid #ccc",
               padding: "10px",

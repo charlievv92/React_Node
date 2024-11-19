@@ -2,6 +2,20 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 
+/**
+ * @swagger
+ * /api/board/posts:
+ *   post:
+ *     summary: 게시물 작성
+ *     tags:
+ *     - Board API
+ *     description: 새 게시물을 작성합니다
+ *     produces:
+ *     - application/json
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 router.post("/posts", (req, res) => {
   const title = req.body.title;
   const content = req.body.content;
@@ -24,7 +38,6 @@ router.post("/posts", (req, res) => {
   console.log("Request received");
 });
 
-// 게시물 리스트 조회
 /**
  * @swagger
  * /api/board/posts:
@@ -63,7 +76,7 @@ router.get("/posts", (req, res) => {
  *   get:
  *     summary: 게시물 상세 조회
  *     tags:
- *     - 게시판 API
+ *     - Board API
  *     description: 게시물 상세 데이터를 조회합니다
  *     produces:
  *     - application/json
@@ -92,6 +105,52 @@ router.get("/posts/:board_id", (req, res) => {
     }
   });
 
+  console.log("Request received");
+});
+
+/**
+ * @swagger
+ * /api/board/posts:
+ *   put:
+ *     summary: 게시물 데이터 수정
+ *     tags:
+ *     - Board API
+ *     description: 특정 게시물의 데이터를 수정합니다
+ *     produces:
+ *     - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               board_id:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.put("/posts", (req, res) => {
+  const title = req.body.title;
+  const contents = req.body.contents;
+  const board_id = req.body.board_id;
+
+  const sqlQuery =
+    "UPDATE board SET title = ?, contents = ?, update_date = ? WHERE board_id = ?";
+  // "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  db.query(sqlQuery, [title, contents, new Date(), board_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    } else {
+      res.send("Success!!");
+    }
+  });
   console.log("Request received");
 });
 

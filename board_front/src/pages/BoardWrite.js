@@ -46,41 +46,59 @@ export default function BoardWrite() {
   const location = useLocation();
   const { board_id } = useParams();
   const [title, setTitle] = useState(location.state?.title || "");
-  const [content, setContent] = useState(location.state?.content || "");
-
+  const [contents, setContents] = useState(location.state?.contents || "");
   const [isEditMode, setIsEditMode] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state) {
+      setTitle(location.state.title || "");
+      setContents(location.state.contents || "");
+      setIsEditMode(true);
+    }
+  }, [location.state]);
 
   // TODO: 게시물 수정 기능 추가(20241119 kwc)
   // const setArticle = () => {
   //   setTitle(article.title);
-  //   setContent(article.content);
+  //   setcontents(article.contents);
   // };
   // TODO: 게시물 작성 유효성 검사 기능 추가(20241113 kwc)
-  const handleContentChange = (value) => {
-    setContent(value);
+  const handleContentsChange = (value) => {
+    setContents(value);
   };
+
   const handleSubmit = async () => {
+    let response = {};
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/board/posts",
-        {
-          title: title,
-          content: content,
-        }
-      );
+      if (isEditMode) {
+        response = await axios.put(
+          `${process.env.REACT_APP_SERVER_URL}/api/board/posts`,
+          {
+            board_id: board_id,
+            title: title,
+            contents: contents,
+          }
+        );
+      } else {
+        response = await axios.post(
+          `${process.env.REACT_APP_SERVER_URL}/api/board/posts`,
+          {
+            title: title,
+            contents: contents,
+          }
+        );
+      }
+
       console.log("title : ", title);
-      console.log("content : ", content);
+      console.log("contents : ", contents);
       console.log("Post created!!! ", response.data);
-      navigate("/boardList");
+      navigate("/articles");
     } catch (error) {
       console.error("Error creating post!!! ", error);
     }
   };
 
-  // useEffect(() => {
-  //   if()
-  // })
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
@@ -119,10 +137,10 @@ export default function BoardWrite() {
           <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
             내용
           </Typography>
-          <QuillEditor value={content} onChange={handleContentChange} />
+          <QuillEditor value={contents} onChange={handleContentsChange} />
           {/* <TextField
             // minRows={20}
-            id="board-content"
+            id="board-contents"
             variant="outlined"
             fullWidth
             multiline
@@ -136,7 +154,7 @@ export default function BoardWrite() {
 
         <Stack
           direction="row"
-          justifyContent="flex-end"
+          justifycontents="flex-end"
           sx={{ width: "100%", mt: 4 }}
           spacing={2}
         >
