@@ -8,6 +8,8 @@ import Typography from "@mui/material/Typography";
 // import ChartUserByCountry from "./ChartUserByCountry";
 // import CustomizedTreeView from "./CustomizedTreeView";
 import CustomizedDataGrid from "../components/CustomizedDataGrid";
+import { Button, Stack } from "@mui/material";
+import { Link } from "react-router-dom";
 // import HighlightedCard from './HighlightedCard';
 // import PageViewsBarChart from './PageViewsBarChart';
 // import SessionsChart from './SessionsChart';
@@ -71,6 +73,21 @@ export default function BoardList() {
         Board List
       </Typography>
       <Grid container spacing={2} columns={12}>
+        <Stack
+          direction="column"
+          sx={{
+            width: "100%",
+            mt: 4,
+            justifyContent: "center",
+            alignItems: "flex-end",
+          }}
+          spacing={2}
+        >
+          <Button component={Link} to={"/articles/write"}>
+            게시물 작성
+          </Button>
+          {/* <Button disabled>Disabled</Button> */}
+        </Stack>
         <Grid size={{ xs: 12, sm: 12 }}>
           <CustomizedDataGrid rows={boardList} />
         </Grid>

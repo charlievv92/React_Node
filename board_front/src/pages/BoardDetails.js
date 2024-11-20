@@ -48,7 +48,9 @@ export default function BoardDetails() {
       alert("작성자만 수정할 수 있습니다.");
       return;
     }
-    navigate(`/articles/modify/${board_id}`, { state: { title, contents } });
+    navigate(`/articles/modify/${board_id}`, {
+      state: { title, contents, authorEmail },
+    });
   };
 
   useEffect(() => {
@@ -82,54 +84,25 @@ export default function BoardDetails() {
             noValidate
             autoComplete="off"
           > */}
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            제목
-          </Typography>
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            {title}
-          </Typography>
-          {/* <TextField
-            // minRows={20}
-            id="board-title"
-            variant="standard"
-            fullWidth
-            // disabled={true}
+          <Box
             sx={{
-              "& .MuiInputBase-root": {
-                border: "1px",
-                borderTopRightRadius: "none",
-                borderTopLeftRadius: "none",
-              },
+              borderBottom: `1px solid #ccc`,
+              mb: 2,
             }}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          /> */}
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            내용
-          </Typography>
-          {/* <QuillEditor value={content} onChange={handleContentChange} /> */}
-          {/* <TextField
-            // minRows={20}
-            id="board-content"
-            variant="standard"
-            fullWidth
-            multiline
-            rows={26}
-            value={content}
-            disabled={true}
-            sx={{
-              "& .MuiInputBase-root": { minHeight: "550px" },
-            }}
-          /> */}
-          <div
+          >
+            <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
+              {title}
+            </Typography>
+          </Box>
+
+          <Box
             ref={contentsRef}
-            style={{
-              border: "1px solid #ccc",
+            sx={{
+              border: "none",
               padding: "10px",
-              borderRadius: "4px",
+              // borderRadius: "4px",
               minHeight: "200px",
             }}
-            // dangerouslySetInnerHTML={{ __html: content }}
           />
           {/* </Box> */}
         </Grid>
