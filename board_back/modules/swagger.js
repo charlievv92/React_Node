@@ -11,7 +11,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: process.env.REACT_APP_SERVER_URL, // IP와 포트번호 설정
+        url: process.env.SERVER_APP_URL, // IP와 포트번호 설정
       },
     ],
   },
