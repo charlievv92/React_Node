@@ -8,6 +8,7 @@ import Divider from "@mui/material/Divider";
 import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
 import Link from "@mui/material/Link";
+import { Link as RouterLink } from 'react-router-dom';
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
@@ -256,7 +257,8 @@ export default function SignIn(props) {
             <Typography sx={{ textAlign: "center" }}>
               <span>
                 <Link
-                  href="/signup"
+                  component={RouterLink}
+                  to='/signup'
                   variant="body2"
                   sx={{ alignSelf: "center" }}
                 >
@@ -273,7 +275,7 @@ export default function SignIn(props) {
               onClick={() => alert("Sign in with Google")}
               startIcon={<GoogleIcon />}
             >
-              Sign in with Google
+              구글아이디로 로그인
             </Button>
             <Button
               fullWidth
@@ -281,7 +283,7 @@ export default function SignIn(props) {
               onClick={() => alert("Sign in with Facebook")}
               startIcon={<FacebookIcon />}
             >
-              Sign in with Facebook
+              페이스북으로 로그인
             </Button>
           </Box>
         </Card>
