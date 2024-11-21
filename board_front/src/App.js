@@ -8,7 +8,7 @@ import BoardWrite from "./pages/BoardWrite";
 import BoardList from "./pages/BoardList";
 import BoardDetails from "./pages/BoardDetails";
 import SignIn from "./auth/sign-in/SignIn";
-import Signup from "./auth/sign-up/SignUp";
+import Signup from "./auth/sign-up/Signup";
 
 function App() {
   return (
