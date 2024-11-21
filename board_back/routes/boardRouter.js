@@ -18,13 +18,13 @@ const db = require("../config/db");
  */
 router.post("/posts", (req, res) => {
   const title = req.body.title;
-  const content = req.body.content;
+  const contents = req.body.contents;
 
   const sqlQuery =
     "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
   db.query(
     sqlQuery,
-    [title, content, 0, "맑음", new Date(), "aaa@aaa.com", "200.200.1.1"],
+    [title, contents, 0, "맑음", new Date(), "aaa@aaa.com", "200.200.1.1"],
     (err, result) => {
       if (err) {
         console.error(err);

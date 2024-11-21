@@ -74,6 +74,7 @@ export default function BoardWrite() {
           }
         );
       } else {
+        // ip 및 기타 정보 추가
         response = await axios.post(
           `${process.env.REACT_APP_SERVER_URL}/api/board/posts`,
           {
@@ -147,8 +148,7 @@ export default function BoardWrite() {
 
         <Stack
           direction="row"
-          justifycontents="flex-end"
-          sx={{ width: "100%", mt: 4 }}
+          sx={{ width: "100%", mt: 4, justifyContent: "flex-end" }}
           spacing={2}
         >
           <Button onClick={handleSubmit}>작성</Button>
