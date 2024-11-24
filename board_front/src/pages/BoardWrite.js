@@ -123,6 +123,7 @@ export default function BoardWrite() {
                 border: "1px",
                 borderTopRightRadius: "none",
                 borderTopLeftRadius: "none",
+                boxShadow: "none",
               },
             }}
             value={title}

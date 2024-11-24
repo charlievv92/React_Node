@@ -68,14 +68,20 @@ export default function BoardDetails() {
     return <CircularProgress />; // 로딩 중일 때 로딩 스피너 표시
   }
   return (
-    <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
+    <Box
+      sx={{
+        width: "100%",
+        maxWidth: { sm: "100%", md: "1700px" },
+        // minHeight: "800px",
+      }}
+    >
       {/* cards */}
 
       <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
         Board Details
       </Typography>
       <Grid container spacing={2} columns={12}>
-        <Grid size={{ xs: 12, sm: 12 }}>
+        <Grid size={{ xs: 12, sm: 9 }}>
           {/* <Box
             component="form"
             sx={{
@@ -87,10 +93,12 @@ export default function BoardDetails() {
           <Box
             sx={{
               borderBottom: `1px solid #ccc`,
-              mb: 2,
+              // mb: 2,
+              pt: 3,
+              pb: 2,
             }}
           >
-            <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
+            <Typography component="h2" variant="h6">
               {title}
             </Typography>
           </Box>
@@ -98,29 +106,43 @@ export default function BoardDetails() {
           <Box
             ref={contentsRef}
             sx={{
-              border: "none",
-              padding: "10px",
+              borderBottom: `1px solid #ccc`,
               // borderRadius: "4px",
-              minHeight: "200px",
+              minHeight: "600px",
+              pb: 2,
             }}
           />
           {/* </Box> */}
+          <Box
+            sx={{
+              borderBottom: `1px solid #ccc`,
+              pt: 2,
+              pb: 2,
+            }}
+          >
+            <Stack
+              direction="row"
+              justifyContent="flex-end"
+              sx={{
+                width: "100%",
+                // mt: 2,
+                // mb: 2,
+                // borderBottom: `1px solid #ccc`,
+                // padding: "10px",
+              }}
+              spacing={2}
+              // alignItems="center"
+            >
+              {email === authorEmail && (
+                <Button onClick={handleModifyClick}>수정</Button>
+              )}
+              {/* <Button disabled>Disabled</Button> */}
+              <Button component={Link} to={`http://localhost:3000/articles`}>
+                리스트
+              </Button>
+            </Stack>
+          </Box>
         </Grid>
-
-        <Stack
-          direction="row"
-          justifyContent="flex-end"
-          sx={{ width: "100%", mt: 4 }}
-          spacing={2}
-        >
-          {email === authorEmail && (
-            <Button onClick={handleModifyClick}>수정</Button>
-          )}
-          {/* <Button disabled>Disabled</Button> */}
-          <Button component={Link} to={`http://localhost:3000/articles`}>
-            리스트
-          </Button>
-        </Stack>
 
         {/* <Grid size={{ xs: 12, lg: 3 }}>
           <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>
