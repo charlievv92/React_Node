@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 // import Stack from "@mui/material/Stack";
@@ -18,7 +18,55 @@ export default function BoardWrite() {
   const [authorEmail, setAuthorEmail] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
   const { isLoggedIn, email } = useAuth();
+  const serverUrl = process.env.REACT_APP_SERVER_URL;
   const navigate = useNavigate();
+  const quillRef = useRef(null); // QuillEditor 인스턴스 참조
+
+  const handleImageUpload = async () => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.onchange = async () => {
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await axios.post(
+        `${serverUrl}/api/board/upload-image/${board_id}`,
+        formData
+      );
+      const data = await response.data;
+
+      // TODO: React-Quill 에디터에 업로드된 이미지 삽입 기능 추가할 것(20241125 kwc)
+      // ref 사용 관련 이슈가 있음
+      // React-Quill 에디터에 업로드된 이미지 URL 삽입
+      const quill = quillRef.current; // Quill 인스턴스
+      const range = quill.getSelection();
+      quill.insertEmbed(range.index, "image", data.imageUrl); // 서버에서 받은 이미지 URL 사용
+    };
+    input.click();
+  };
+
+  const customModules = {
+    toolbar: {
+      container: [
+        [{ size: ["small", false, "large", "huge"] }],
+        [{ align: [] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        [
+          {
+            color: [],
+          },
+          { background: [] },
+        ],
+        ["link", "image", "video"],
+      ],
+      handlers: {
+        image: handleImageUpload, // 커스텀 핸들러 연결
+      },
+    },
+  };
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -41,7 +89,6 @@ export default function BoardWrite() {
     }
   }, [location.state]);
 
-  // TODO: 게시물 작성 유효성 검사 기능 추가(20241113 kwc)
   const handleContentsChange = (value) => {
     setContents(value);
     console.log("contents : ", contents);
@@ -132,7 +179,13 @@ export default function BoardWrite() {
           <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
             내용
           </Typography>
-          <QuillEditor value={contents} onChange={handleContentsChange} />
+          <QuillEditor
+            ref={quillRef}
+            value={contents}
+            modules={customModules}
+            onChange={handleContentsChange}
+            style={{ height: "500px" }}
+          />
           {/* <TextField
             // minRows={20}
             id="board-contents"
