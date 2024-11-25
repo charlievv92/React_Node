@@ -20,7 +20,7 @@ import AppTheme from "../../shared-theme/AppTheme";
 import ColorModeSelect from "../../shared-theme/ColorModeSelect";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext";
-import { jwtDecode } from "jwt-decode";
+
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -80,7 +80,7 @@ export default function SignIn(props) {
     setOpen(false);
   };
 
-  const { setIsLoggedIn, setEmail, setUserName, setAuthCode } = useAuth();
+  const { setIsLoggedIn, setUser } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation(); // 현재 위치 가져오기
@@ -104,6 +104,7 @@ export default function SignIn(props) {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include", // 쿠키 포함
           body: JSON.stringify({ email, password }),
         }
       );
@@ -111,17 +112,10 @@ export default function SignIn(props) {
       if (response.ok) {
         console.log("로그인 성공");
         const responseData = await response.json(); // JSON 응답 파싱
-        const token = responseData.token; // 서버에서 받은 JWT 토큰
-        localStorage.setItem("jwt_token", token); // 토큰을 로컬 스토리지에 저장
-
-        // JWT 디코드 후 Context 상태 업데이트
-        const decodedJWT = jwtDecode(token);
 
         //TODO await function으로 묶어놓기, 응답처리를 확인(기다림) await async
         await setIsLoggedIn(true); // Context에서 가져온 상태 업데이트 함수
-        await setEmail(decodedJWT.email);
-        await setUserName(decodedJWT.userName);
-        await setAuthCode(decodedJWT.authCode);
+        await setUser(responseData.user);
 
         const from = location.state?.from?.pathname || "/"; // 이전 페이지 정보
         navigate(from); // 이전 페이지로 이동

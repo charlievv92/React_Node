@@ -9,6 +9,8 @@ import BoardList from "./pages/BoardList";
 import BoardDetails from "./pages/BoardDetails";
 import SignIn from "./auth/sign-in/SignIn";
 import Signup from "./auth/sign-up/Signup";
+import OnlyNotLoginRoute from "./routes/OnlyNotLoginRoute";
+import OnlyLoginRoute from "./routes/OnlyLoginRoute";
 
 function App() {
   return (
@@ -18,7 +20,14 @@ function App() {
           <Routes>
             <Route path="/" element={<Board />}>
               <Route path="/" element={<MainGrid />}></Route>
-              <Route path="/mypage" element={<Mypage />}></Route>
+              <Route
+               path="/mypage" 
+               element={
+                <OnlyLoginRoute>
+                  <Mypage />
+                </OnlyLoginRoute>
+                }
+              />
               <Route path="/articles" element={<BoardList />}></Route>
               <Route path="/articles/write" element={<BoardWrite />}></Route>
               <Route
@@ -26,7 +35,14 @@ function App() {
                 element={<BoardDetails />}
               ></Route>
             </Route>
-            <Route path="/loginpage" element={<SignIn />} />
+            <Route
+              path="/loginpage"
+              element={
+                <OnlyNotLoginRoute>
+                  <SignIn />
+                </OnlyNotLoginRoute>
+              }
+            />
             <Route path="/signup" element={<Signup />} />
           </Routes>
         </BrowserRouter>

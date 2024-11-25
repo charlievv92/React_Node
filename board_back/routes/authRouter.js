@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const jwt = require('jsonwebtoken');
 const passport = require('../config/passport');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // 해싱 라운드: 높을수록 보안 강하지만 속도 저하 있음
@@ -35,40 +34,73 @@ const saltRounds = 10; // 해싱 라운드: 높을수록 보안 강하지만 속
  *       500:
  *         description: 서버 오류
  */
-router.post('/login', (req, res) => {
-  const { email, password } = req.body;
-  const sqlQuery = 'SELECT * FROM user WHERE email = ?';
-  db.query(sqlQuery, [email], async (err, result) => {
-    if (err) {
-      return res.status(500).send('Database error');
-    }
-    if (result.length === 0) {
-      return res.status(401).send('이메일 또는 비밀번호가 일치하지 않습니다.');
-    }
-    // DB에서찾은 사용자정보
-    const user = result[0];
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if(!isMatch){
-      return res.status(401).send('이메일 또는 비밀번호가 일치하지 않습니다.');
-    }
-
-    // JWT 생성 (1시간 유효)
-    const token = jwt.sign(
-      {
-        // 토큰에 포함할 사용자 데이터
-        email: user.email,
-        userName: user.user_name,
-        authCode: user.auth_code
+router.post('/login', (req, res, next) => {
+  
+  if (req.isAuthenticated()) {
+    return res.status(200).json({
+      message: "이미 로그인된 상태입니다.",
+      user: {
+        email: req.user.email,
+        userName: req.user.user_name,
+        authCode: req.user.auth_code,
       },
-      process.env.JWT_SECRET, // 비밀키 (환경 변수로 관리)
-      { expiresIn: '30s' } // 토큰 유효 기간 s, m, h, d 현재 테스트용으로 30초 유지
-    );
+    });
+  }
+  
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      return res.status(500).send('서버 오류: ' + err.message);
+    }
+    if (!user) {
+      return res.status(401).send(info.message || '이메일 또는 비밀번호가 일치하지 않습니다.');
+    }
 
-    // 로그인 성공 토큰전송
-    res.status(200).json({
-      message: 'Login successful',
-      token: token,
+    // 세션 생성
+    req.logIn(user, (err) => {
+      if (err) {
+        return res.status(500).send('세션 생성 실패');
+      }
+      res.status(200).json({
+        message: '로그인 성공',
+        user: {
+          email: user.email,
+          userName: user.user_name,
+          authCode: user.auth_code,
+        },
+      });
+    });
+  })(req, res, next);
+});
+
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: 로그아웃 요천
+ *     description: 로그인된 사용자의 세션을 종료하고 쿠키를 삭제합니다.
+ *     tags: 
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: 로그아웃 성공
+ *       500:
+ *         description: 서버 오류 또는 로그아웃 실패
+ */
+router.post('/logout', (req, res) => {
+  // Passport 로그아웃 처리
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).send('로그아웃 처리 실패');
+    }
+    // 세션 삭제
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).send('세션 삭제 실패');
+      }
+      // 클라이언트 쿠키 삭제
+      res.clearCookie('dev_session_cookie'); // 세션 쿠키 이름과 동일해야 함
+      res.status(200).send('로그아웃 성공');
     });
   });
 });
@@ -220,76 +252,55 @@ router.post('/signinUser', async  (req, res) => {
   }
 });
 
-
-
 /**
  * @swagger
- * /api/auth/testPass:
- *   post:
- *     summary: 비밀번호 해싱 및 비교 테스트
- *     description: 입력된 비밀번호와 데이터베이스의 해싱된 비밀번호를 비교합니다.
+ * /api/auth/status:
+ *   get:
+ *     summary: 로그인 상태 확인
+ *     description: 현재 로그인 상태를 반환합니다.
  *     tags: 
  *        - Auth
- *     requestBody:
- *       required: true
- *       content: 
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email: 
- *                 type: string
- *                 example: "user@example.com"
- *               password:
- *                 type: string
- *                 example: "passwordmin6"
  *     responses:
  *       200:
- *         description: 비밀번호 일치
- *       401:
- *         description: 이메일이 없거나 비밀번호가 일치하지 않음
- *       500:
- *         description: 서버 오류
+ *         description: 로그인 상태 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 loggedIn:
+ *                   type: boolean
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                     userName:
+ *                       type: string
+ *                     authCode:
+ *                       type: string
  */
-router.post('/testPass', async (req, res) => {
-
-  const { email, password } = req.body;
-  const sqlQuery = "SELECT password FROM user WHERE email = ?";
-  try{
-    db.query(sqlQuery, [email], async (err, result) => {
-      if (err) {
-        console.error('DB Error:', err);
-        return res.status(500).send('서버 오류');
-      }
-
-      if (result.length === 0) {
-        // 이메일이 존재하지 않는 경우
-        return res.status(401).send('이메일을 찾을 수 없습니다.');
-      }
-
-      const hashedPassword = await bcrypt.hash(password, saltRounds); // 입력한거 암호화
-      const dbpass = result[0].password; // 데이터베이스에서 가져온 해싱된 비밀번호
-
-      // 입력된 비밀번호와 DB의 해싱된 비밀번호 비교
-      const isMatch = await bcrypt.compare(password, dbpass);
-
-      console.log('입력 비밀번호:', password);
-      console.log('그걸 암호화함:', hashedPassword)
-      console.log('DB에 저장된 해시 비밀번호:', dbpass);
-      console.log('비밀번호 일치 여부:', isMatch);
-
-      if (isMatch) {
-        res.status(200).send('비밀번호가 일치합니다.');
-      } else {
-        res.status(401).send('비밀번호가 일치하지 않습니다.');
-      }
+router.get('/status', (req, res) => {
+  // Passport를 통해 인증된 사용자인지 확인
+  if (req.isAuthenticated()) {
+    // 인증된 사용자 정보 반환
+    res.status(200).json({
+      loggedIn: true,
+      user: {
+        email: req.user.email,
+        userName: req.user.user_name,
+        authCode: req.user.auth_code,
+      },
     });
-  }catch(error) {
-    console.error(error);
+  } else {
+    // 인증되지 않은 상태
+    res.status(200).json({
+      loggedIn: false,
+    });
   }
-
-  
 });
+
+
 
 
 module.exports = router;
