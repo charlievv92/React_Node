@@ -41,6 +41,7 @@ export default function Board(props) {
               ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
               : alpha(theme.palette.background.default, 1),
             overflow: "auto",
+            height: "100vh", // 100% of the viewport height
           })}
         >
           <Stack

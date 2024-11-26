@@ -13,6 +13,7 @@ import OnlyNotLoginRoute from "./routes/OnlyNotLoginRoute";
 import OnlyLoginRoute from "./routes/OnlyLoginRoute";
 
 function App() {
+  // TODO: 게시물 리스트 url에 params로 페이지 번호, 검색어 받아오는 기능 추가(20241121 kwc)
   return (
     <div>
       <AuthProvider>

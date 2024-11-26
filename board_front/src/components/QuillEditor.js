@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { forwardRef, useMemo } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -23,8 +23,7 @@ const formats = [
   "image",
   "video",
 ];
-
-export default function QuillEditor({ value, onChange }) {
+const QuillEditor = forwardRef(({ value, onChange, modules, style }, ref) => {
   // const quillRef = useRef(null);
 
   // useEffect(() => {
@@ -36,7 +35,8 @@ export default function QuillEditor({ value, onChange }) {
 
   // console.log(values); // Use the 'values' state variable
 
-  const modules = useMemo(() => {
+  // TODO : 이미지 핸들러 추가 필요(20241126 kwc)
+  const defaultModules = useMemo(() => {
     return {
       toolbar: {
         container: [
@@ -58,12 +58,15 @@ export default function QuillEditor({ value, onChange }) {
 
   return (
     <ReactQuill
+      ref={ref}
       theme="snow"
-      modules={modules}
+      modules={modules || defaultModules}
       formats={formats}
       value={value}
       onChange={onChange}
-      style={{ height: "500px" }}
+      style={style}
     />
   );
-}
+});
+
+export default QuillEditor;
