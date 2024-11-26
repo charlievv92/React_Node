@@ -37,7 +37,7 @@ app.use(
       httpOnly: true,
       secure: false, // 개발 환경에서는 HTTPS가 아니므로 false
       sameSite: 'lax', // 크로스 도메인 허용: 'lax', 'strict', 'none'
-      maxAge: 1 * 60 * 60 * 1000, // 1시간(ms) 동안 쿠키 유지됨, 만료시 브라우저에서 자동으로 삭제됨
+      maxAge: 1 * 1 * 15 * 1000, // 1시간(ms) 동안 쿠키 유지됨, 만료시 브라우저에서 자동으로 삭제됨
     },
   })
 );

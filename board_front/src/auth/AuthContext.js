@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
+    //TODO:isLoggedIn 지우고 user의 authCode써보기
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, clientIp }}>
       {children}
     </AuthContext.Provider>

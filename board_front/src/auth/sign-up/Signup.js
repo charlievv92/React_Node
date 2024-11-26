@@ -386,7 +386,7 @@ export default function SignUp(props) {
               <span>
                 <Link
                   component={RouterLink}
-                  to='/loginpage'
+                  to='/login'
                   variant="body2"
                   sx={{ alignSelf: 'center' }}
                 >

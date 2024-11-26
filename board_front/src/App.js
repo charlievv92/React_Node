@@ -36,7 +36,7 @@ function App() {
               ></Route>
             </Route>
             <Route
-              path="/loginpage"
+              path="/login"
               element={
                 <OnlyNotLoginRoute>
                   <SignIn />

@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const db = require('./db');
 
 // Passport LocalStrategy 설정
+//TODO: Redis 사용해보기
 passport.use(
   new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
     const sqlQuery = 'SELECT * FROM user WHERE email = ?';

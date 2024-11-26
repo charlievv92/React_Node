@@ -6,7 +6,7 @@ const OnlyLoginRoute = ({ children }) => {
 
   if (!isLoggedIn) {
     // 비로그인 상태라면 로그인 페이지로 리다이렉트
-    return <Navigate to="/loginpage" />;
+    return <Navigate to="/login" />;
   }
 
   // 로그인 상태라면 자식 컴포넌트를 렌더링
