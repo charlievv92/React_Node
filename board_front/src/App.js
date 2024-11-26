@@ -11,6 +11,7 @@ import SignIn from "./auth/sign-in/SignIn";
 import Signup from "./auth/sign-up/Signup";
 
 function App() {
+  // TODO: 게시물 리스트 url에 params로 페이지 번호, 검색어 받아오는 기능 추가(20241121 kwc)
   return (
     <div>
       <AuthProvider>
