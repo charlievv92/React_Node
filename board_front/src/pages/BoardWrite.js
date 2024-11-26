@@ -22,6 +22,8 @@ export default function BoardWrite() {
   const navigate = useNavigate();
   const quillRef = useRef(null); // QuillEditor 인스턴스 참조
 
+  // TODO: React-Quill 에디터에 업로드된 이미지 삽입 기능 추가할 것(20241125 kwc)
+  // ref 사용 관련 이슈가 있음
   const handleImageUpload = async () => {
     const input = document.createElement("input");
     input.setAttribute("type", "file");
@@ -37,10 +39,8 @@ export default function BoardWrite() {
       );
       const data = await response.data;
 
-      // TODO: React-Quill 에디터에 업로드된 이미지 삽입 기능 추가할 것(20241125 kwc)
-      // ref 사용 관련 이슈가 있음
       // React-Quill 에디터에 업로드된 이미지 URL 삽입
-      const quill = quillRef.current; // Quill 인스턴스
+      const quill = quillRef.current.getEditor(); // Quill 인스턴스
       const range = quill.getSelection();
       quill.insertEmbed(range.index, "image", data.imageUrl); // 서버에서 받은 이미지 URL 사용
     };
@@ -62,24 +62,25 @@ export default function BoardWrite() {
         ],
         ["link", "image", "video"],
       ],
-      handlers: {
-        image: handleImageUpload, // 커스텀 핸들러 연결
-      },
+      // handlers: {
+      //   image: handleImageUpload, // 커스텀 핸들러 연결
+      // },
     },
   };
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-    }
+  // useEffect(() => { 테스트 필요
+  //   if (!isLoggedIn) {
+  //     alert("로그인이 필요합니다.");
+  //     navigate("/login");
+  //   }
 
-    if (isEditMode && email !== authorEmail) {
-      alert("작성자만 수정할 수 있습니다.");
-      navigate(`/articles/${board_id}`);
-    }
-  }, [isLoggedIn, isEditMode, email, authorEmail, navigate, board_id]);
+  //   if (isEditMode && email !== authorEmail) {
+  //     alert("작성자만 수정할 수 있습니다.");
+  //     navigate(`/articles/${board_id}`);
+  //   }
+  // }, [isLoggedIn, isEditMode, email, authorEmail, navigate, board_id]);
 
+  // TODO : 게시물 데이터 서버로부터 가져오도록 수정 필요(20241126 kwc)
   useEffect(() => {
     if (location.state) {
       setTitle(location.state.title || "");
@@ -129,6 +130,13 @@ export default function BoardWrite() {
             contents: contents,
           }
         );
+        // .then((response) => {
+        //   console.log("Post created!!! ", response.data);
+        //   navigate("/articles");
+        // })
+        // .catch((error) => {
+        //   console.error("Error creating post!!! ", error);
+        // });
       }
 
       console.log("title : ", title);

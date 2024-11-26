@@ -35,6 +35,7 @@ const QuillEditor = forwardRef(({ value, onChange, modules, style }, ref) => {
 
   // console.log(values); // Use the 'values' state variable
 
+  // TODO : 이미지 핸들러 추가 필요(20241126 kwc)
   const defaultModules = useMemo(() => {
     return {
       toolbar: {
@@ -57,6 +58,7 @@ const QuillEditor = forwardRef(({ value, onChange, modules, style }, ref) => {
 
   return (
     <ReactQuill
+      ref={ref}
       theme="snow"
       modules={modules || defaultModules}
       formats={formats}
