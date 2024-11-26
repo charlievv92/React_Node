@@ -1,5 +1,6 @@
 require("dotenv").config(); // .env파일 읽기
 const express = require("express");
+const session = require('express-session');
 const { swaggerUI, swaggerDocs } = require("./modules/swagger");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -21,8 +22,30 @@ app.use(
 
 // swagger UI 설정
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
-app.use(passport.initialize());
+
+//json사용
 app.use(bodyParser.json());
+
+// 로그인 세션 설정
+app.use(
+  session({
+    name: 'dev_session_cookie',
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false, //세션이 변경되지 않아도 매요청시 저장되는옵션 비효율적이기때문에 권장되지않음
+    cookie: {
+      httpOnly: true,
+      secure: false, // 개발 환경에서는 HTTPS가 아니므로 false
+      sameSite: 'lax', // 크로스 도메인 허용: 'lax', 'strict', 'none'
+      maxAge: 1 * 1 * 15 * 1000, // 1시간(ms) 동안 쿠키 유지됨, 만료시 브라우저에서 자동으로 삭제됨
+    },
+  })
+);
+
+// Passport 초기화
+app.use(passport.initialize());
+app.use(passport.session()); // Passport 세션 연결
+
 
 //라우팅 별도 파일로 분리
 app.use("/api/auth", authRouter);
@@ -35,6 +58,7 @@ app.get("/", (req, res) => {
   });
   console.log("Request received");
 });
+
 
 app.listen(PORT, () => {
   console.log(`running on port ${PORT}`);

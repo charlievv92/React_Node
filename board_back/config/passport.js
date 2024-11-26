@@ -1,36 +1,43 @@
 const passport = require('passport');
-const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcrypt');
 const db = require('./db');
 
-// JWT 옵션 설정
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Authorization 헤더에서 토큰 추출
-  secretOrKey: process.env.JWT_SECRET, // 토큰 서명에 사용할 시크릿 키
-};
-
-// JWT 전략 정의
-const jwtVerify = async (jwtPayload, done) => {
-  try {
-    // JWT의 payload에서 사용자 email 추출
-    const email = jwtPayload.email;
-
-    // DB에서 사용자 확인
-    db.query('SELECT * FROM user WHERE email = ?', [email], (err, result) => {
-      if (err) {
-        return done(err, false);
+// Passport LocalStrategy 설정
+//TODO: Redis 사용해보기
+passport.use(
+  new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
+    const sqlQuery = 'SELECT * FROM user WHERE email = ?';
+    db.query(sqlQuery, [email], async (err, results) => {
+      if (err) return done(err);
+      if (results.length === 0) {
+        return done(null, false, { message: '이메일 또는 비밀번호가 일치하지 않습니다.' });
       }
-      if (result.length === 0) {
-        return done(null, false); // 사용자 없음
+
+      const user = results[0];
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return done(null, false, { message: '이메일 또는 비밀번호가 일치하지 않습니다.' });
       }
-      const user = result[0];
-      return done(null, user); // 사용자 정보 전달
+
+      return done(null, user); // 인증 성공
     });
-  } catch (err) {
-    done(err, false);
-  }
-};
+  })
+);
 
-// JWT 전략을 Passport에 등록
-passport.use(new JwtStrategy(jwtOptions, jwtVerify));
+// 세션 직렬화
+passport.serializeUser((user, done) => {
+  done(null, user.email); // 사용자 email만 세션에 저장됨
+});
+
+// 세션 역직렬화
+passport.deserializeUser((email, done) => {
+  const sqlQuery = 'SELECT * FROM user WHERE email = ?';
+  db.query(sqlQuery, [email], (err, results) => {
+    if (err) return done(err);
+    if (results.length === 0) return done(null, false);
+    return done(null, results[0]); // 세션에서 사용자 정보 복원
+  });
+});
 
 module.exports = passport;

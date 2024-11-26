@@ -18,7 +18,7 @@ const mainListItems = [
   { text: '홈', icon: <HomeRoundedIcon />, routePath: '/'},
   { text: '게시판', icon: <AnalyticsRoundedIcon /> , routePath: '/board'},
   { text: '할일 리스트', icon: <PeopleRoundedIcon />, routePath: '/todolist'},
-  { text: '로그인', icon: <AssignmentRoundedIcon />,  routePath: '/loginpage'},
+  { text: '로그인', icon: <AssignmentRoundedIcon />,  routePath: '/login'},
 ];
 //이곳의 rouPath에 원하는 주소 설정
 
