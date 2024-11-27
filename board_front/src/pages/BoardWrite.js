@@ -7,66 +7,75 @@ import TextField from "@mui/material/TextField";
 import QuillEditor from "../components/QuillEditor";
 import { Button, Stack } from "@mui/material";
 import axios from "axios";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 export default function BoardWrite() {
+  const { setPageTitle } = useOutletContext();
   const location = useLocation();
   const { board_id } = useParams();
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
-  const { isLoggedIn, email } = useAuth();
-  const serverUrl = process.env.REACT_APP_SERVER_URL;
+  const { isLoggedIn, user } = useAuth();
+
   const navigate = useNavigate();
-  const quillRef = useRef(null); // QuillEditor 인스턴스 참조
+
+  useEffect(() => {
+    setPageTitle("Board Write");
+  }, [setPageTitle]);
 
   // TODO: React-Quill 에디터에 업로드된 이미지 삽입 기능 추가할 것(20241125 kwc)
   // ref 사용 관련 이슈가 있음
-  const handleImageUpload = async () => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.onchange = async () => {
-      const file = input.files[0];
-      const formData = new FormData();
-      formData.append("image", file);
+  // const handleImageUpload = async () => {
+  //   const input = document.createElement("input");
+  //   input.setAttribute("type", "file");
+  //   input.setAttribute("accept", "image/*");
+  //   input.onchange = async () => {
+  //     const file = input.files[0];
+  //     const formData = new FormData();
+  //     formData.append("image", file);
 
-      const response = await axios.post(
-        `${serverUrl}/api/board/upload-image/${board_id}`,
-        formData
-      );
-      const data = await response.data;
+  //     const response = await axios.post(
+  //       `${serverUrl}/api/board/upload-image/${board_id}`,
+  //       formData
+  //     );
+  //     const data = await response.data;
 
-      // React-Quill 에디터에 업로드된 이미지 URL 삽입
-      const quill = quillRef.current.getEditor(); // Quill 인스턴스
-      const range = quill.getSelection();
-      quill.insertEmbed(range.index, "image", data.imageUrl); // 서버에서 받은 이미지 URL 사용
-    };
-    input.click();
-  };
+  //     // React-Quill 에디터에 업로드된 이미지 URL 삽입
+  //     const quill = quillRef.current.getEditor(); // Quill 인스턴스
+  //     const range = quill.getSelection();
+  //     quill.insertEmbed(range.index, "image", data.imageUrl); // 서버에서 받은 이미지 URL 사용
+  //   };
+  //   input.click();
+  // };
 
-  const customModules = {
-    toolbar: {
-      container: [
-        [{ size: ["small", false, "large", "huge"] }],
-        [{ align: [] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [
-          {
-            color: [],
-          },
-          { background: [] },
-        ],
-        ["link", "image", "video"],
-      ],
-      // handlers: {
-      //   image: handleImageUpload, // 커스텀 핸들러 연결
-      // },
-    },
-  };
+  // const customModules = {
+  //   toolbar: {
+  //     container: [
+  //       [{ size: ["small", false, "large", "huge"] }],
+  //       [{ align: [] }],
+  //       ["bold", "italic", "underline", "strike"],
+  //       [{ list: "ordered" }, { list: "bullet" }],
+  //       [
+  //         {
+  //           color: [],
+  //         },
+  //         { background: [] },
+  //       ],
+  //       ["link", "image", "video"],
+  //     ],
+  //     // handlers: {
+  //     //   image: handleImageUpload, // 커스텀 핸들러 연결
+  //     // },
+  //   },
+  // };
 
   // useEffect(() => { 테스트 필요
   //   if (!isLoggedIn) {
@@ -149,15 +158,9 @@ export default function BoardWrite() {
   };
 
   return (
-    <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
-      {/* cards */}
-
-      <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
-        Board Write
-      </Typography>
-      <Grid container spacing={2} columns={12}>
-        <Grid size={{ xs: 12, sm: 12 }}>
-          {/* <Box
+    <>
+      <Grid size={{ xs: 12, sm: 12 }}>
+        {/* <Box
             component="form"
             sx={{
               "& .MuiTextField-root": { m: 1, width: "100ch" },
@@ -165,36 +168,36 @@ export default function BoardWrite() {
             noValidate
             autoComplete="off"
           > */}
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            제목
-          </Typography>
-          <TextField
-            // minRows={20}
-            id="board-title"
-            variant="standard"
-            fullWidth
-            sx={{
-              "& .MuiInputBase-root": {
-                border: "1px",
-                borderTopRightRadius: "none",
-                borderTopLeftRadius: "none",
-                boxShadow: "none",
-              },
-            }}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            내용
-          </Typography>
-          <QuillEditor
-            ref={quillRef}
-            value={contents}
-            modules={customModules}
-            onChange={handleContentsChange}
-            style={{ height: "500px" }}
-          />
-          {/* <TextField
+        <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
+          제목
+        </Typography>
+        <TextField
+          // minRows={20}
+          id="board-title"
+          variant="standard"
+          fullWidth
+          sx={{
+            "& .MuiInputBase-root": {
+              border: "1px",
+              borderTopRightRadius: "none",
+              borderTopLeftRadius: "none",
+              boxShadow: "none",
+            },
+          }}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
+          내용
+        </Typography>
+        <QuillEditor
+          // ref={quillRef}
+          html={contents}
+          // modules={customModules}
+          setHtml={handleContentsChange}
+          style={{ height: "500px" }}
+        />
+        {/* <TextField
             // minRows={20}
             id="board-contents"
             variant="outlined"
@@ -205,26 +208,18 @@ export default function BoardWrite() {
               "& .MuiInputBase-root": { minHeight: "550px" },
             }}
           /> */}
-          {/* </Box> */}
-        </Grid>
-
-        <Stack
-          direction="row"
-          sx={{ width: "100%", mt: 4, justifyContent: "flex-end" }}
-          spacing={2}
-        >
-          <Button onClick={handleSubmit}>작성</Button>
-          {/* <Button disabled>Disabled</Button> */}
-          <Button href="#text-buttons">리스트</Button>
-        </Stack>
-
-        {/* <Grid size={{ xs: 12, lg: 3 }}>
-          <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>
-            <CustomizedTreeView />
-            <ChartUserByCountry />
-          </Stack>
-        </Grid> */}
+        {/* </Box> */}
       </Grid>
-    </Box>
+
+      <Stack
+        direction="row"
+        sx={{ width: "100%", mt: 4, justifyContent: "flex-end" }}
+        spacing={2}
+      >
+        <Button onClick={handleSubmit}>작성</Button>
+        {/* <Button disabled>Disabled</Button> */}
+        <Button href="#text-buttons">리스트</Button>
+      </Stack>
+    </>
   );
 }

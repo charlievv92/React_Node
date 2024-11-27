@@ -7,11 +7,16 @@ import Typography from "@mui/material/Typography";
 
 import CustomizedDataGrid from "../components/CustomizedDataGrid";
 import { Button, Stack } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 
 export default function BoardList() {
   // TODO: 게시물 검색 기능 및 페이지네이션 관련 기능 추가(20241121 kwc)
+  const { setPageTitle } = useOutletContext();
   const [boardList, setBoardList] = useState([]);
+
+  useEffect(() => {
+    setPageTitle("Board List");
+  }, [setPageTitle]);
 
   const getBoardList = async () => {
     const resp = await axios.get("http://localhost:8000/api/board/posts"); // 2) 게시글 목록 데이터에 할당
@@ -28,38 +33,31 @@ export default function BoardList() {
   // }, [boardList]);
 
   return (
-    <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
-      {/* cards */}
-
-      <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
-        Board List
-      </Typography>
-      <Grid container spacing={2} columns={12}>
-        <Stack
-          direction="column"
-          sx={{
-            width: "100%",
-            mt: 4,
-            justifyContent: "center",
-            alignItems: "flex-end",
-          }}
-          spacing={2}
-        >
-          <Button component={Link} to={"/articles/write"}>
-            게시물 작성
-          </Button>
-          {/* <Button disabled>Disabled</Button> */}
-        </Stack>
-        <Grid size={{ xs: 12, sm: 12 }}>
-          <CustomizedDataGrid rows={boardList} />
-        </Grid>
-        {/* <Grid size={{ xs: 12, lg: 3 }}>
+    <>
+      <Stack
+        direction="column"
+        sx={{
+          width: "100%",
+          mt: 4,
+          justifyContent: "center",
+          alignItems: "flex-end",
+        }}
+        spacing={2}
+      >
+        <Button component={Link} to={"/articles/write"}>
+          게시물 작성
+        </Button>
+        {/* <Button disabled>Disabled</Button> */}
+      </Stack>
+      <Grid size={{ xs: 12, sm: 12 }}>
+        <CustomizedDataGrid rows={boardList} />
+      </Grid>
+      {/* <Grid size={{ xs: 12, lg: 3 }}>
           <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>
             <CustomizedTreeView />
             <ChartUserByCountry />
           </Stack>
         </Grid> */}
-      </Grid>
-    </Box>
+    </>
   );
 }

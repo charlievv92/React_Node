@@ -7,11 +7,17 @@ import Typography from "@mui/material/Typography";
 // import QuillEditor from "../components/QuillEditor";
 import { Button, CircularProgress, Stack } from "@mui/material";
 import axios from "axios";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import QuillEditor from "../components/QuillEditor";
 
 export default function BoardDetails() {
+  const { setPageTitle } = useOutletContext();
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [comment, setComment] = useState("");
@@ -43,6 +49,10 @@ export default function BoardDetails() {
 
   const customStyle = { height: "150px" };
   const serverUrl = process.env.REACT_APP_SERVER_URL;
+
+  useEffect(() => {
+    setPageTitle("Board Details");
+  }, [setPageTitle]);
 
   const getArticleDetails = async () => {
     try {
@@ -128,21 +138,8 @@ export default function BoardDetails() {
     return <CircularProgress />; // 로딩 중일 때 로딩 스피너 표시
   }
   return (
-    <Box
-      sx={{
-        width: "100%",
-        maxWidth: { sm: "100%", md: "1700px" },
-        // minHeight: "800px",
-      }}
-    >
-      {/* cards */}
-
-      <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
-        Board Details
-      </Typography>
-      <Grid container spacing={2} columns={12}>
-        <Grid size={{ xs: 12, sm: 9 }}>
-          {/* <Box
+    <Grid size={{ xs: 12, sm: 9 }}>
+      {/* <Box
             component="form"
             sx={{
               "& .MuiTextField-root": { m: 1, width: "100ch" },
@@ -150,90 +147,88 @@ export default function BoardDetails() {
             noValidate
             autoComplete="off"
           > */}
-          <Box
-            sx={{
-              borderBottom: `1px solid #ccc`,
-              // mb: 2,
-              pt: 3,
-              pb: 2,
-            }}
-          >
-            <Typography component="h2" variant="h6">
-              {title}
-            </Typography>
-          </Box>
+      <Box
+        sx={{
+          borderBottom: `1px solid #ccc`,
+          // mb: 2,
+          pt: 3,
+          pb: 2,
+        }}
+      >
+        <Typography component="h2" variant="h6">
+          {title}
+        </Typography>
+      </Box>
 
-          <Box
-            ref={contentsRef}
-            sx={{
-              borderBottom: `1px solid #ccc`,
-              // borderRadius: "4px",
-              minHeight: "350px",
-              pb: 2,
-            }}
-          />
+      <Box
+        ref={contentsRef}
+        sx={{
+          borderBottom: `1px solid #ccc`,
+          // borderRadius: "4px",
+          minHeight: "350px",
+          pb: 2,
+        }}
+      />
 
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            sx={{
-              width: "100%",
-              pt: 2,
-              pb: 2,
-              borderBottom: `1px solid #ccc`,
-              // mt: 2,
-              // mb: 2,
-              // borderBottom: `1px solid #ccc`,
-              // padding: "10px",
-            }}
-            spacing={2}
-            // alignItems="center"
-          >
-            {email === authorEmail && (
-              <Button onClick={handleModifyClick}>수정</Button>
-            )}
-            <Button component={Link} to={`http://localhost:3000/articles`}>
-              리스트
-            </Button>
-          </Stack>
-          <Box
-            sx={{
-              // mb: 2,
-              pt: 3,
-              pb: 2,
-            }}
-          >
-            <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
-              댓글
-            </Typography>
-            <QuillEditor
-              value={comment}
-              modules={customModules}
-              onChange={handleCommentChange}
-              style={customStyle}
-            />
-          </Box>
+      <Stack
+        direction="row"
+        justifyContent="flex-end"
+        sx={{
+          width: "100%",
+          pt: 2,
+          pb: 2,
+          borderBottom: `1px solid #ccc`,
+          // mt: 2,
+          // mb: 2,
+          // borderBottom: `1px solid #ccc`,
+          // padding: "10px",
+        }}
+        spacing={2}
+        // alignItems="center"
+      >
+        {email === authorEmail && (
+          <Button onClick={handleModifyClick}>수정</Button>
+        )}
+        <Button component={Link} to={`http://localhost:3000/articles`}>
+          리스트
+        </Button>
+      </Stack>
+      <Box
+        sx={{
+          // mb: 2,
+          pt: 3,
+          pb: 2,
+        }}
+      >
+        <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
+          댓글
+        </Typography>
+        <QuillEditor
+          value={comment}
+          modules={customModules}
+          onChange={handleCommentChange}
+          style={customStyle}
+        />
+      </Box>
 
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            sx={{
-              width: "100%",
-              pt: 2,
-              pb: 2,
-              borderBottom: `1px solid #ccc`,
-              // mt: 2,
-              // mb: 2,
-              // borderBottom: `1px solid #ccc`,
-              // padding: "10px",
-            }}
-            spacing={2}
-            // alignItems="center"
-          >
-            <Button onClick={handleSubmitClick}>작성</Button>
-          </Stack>
-        </Grid>
-      </Grid>
-    </Box>
+      <Stack
+        direction="row"
+        justifyContent="flex-end"
+        sx={{
+          width: "100%",
+          pt: 2,
+          pb: 2,
+          borderBottom: `1px solid #ccc`,
+          // mt: 2,
+          // mb: 2,
+          // borderBottom: `1px solid #ccc`,
+          // padding: "10px",
+        }}
+        spacing={2}
+        // alignItems="center"
+      >
+        <Button onClick={handleSubmitClick}>작성</Button>
+      </Stack>
+    </Grid>
   );
 }

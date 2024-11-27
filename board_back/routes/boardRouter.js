@@ -249,7 +249,7 @@ router.get("/comments/:board_id", (req, res) => {
 
 /**
  * @swagger
- * /api/board/upload-image/{board_id}:
+ * /api/board/upload-image:
  *   post:
  *     summary: 이미지 업로드
  *     tags:
@@ -261,11 +261,13 @@ router.get("/comments/:board_id", (req, res) => {
  *       200:
  *         description: OK
  */
-router.post("/upload-image/:board_id", upload.single("image"), (req, res) => {
+router.post("/upload-image", upload.single("image"), (req, res) => {
   if (!req.file) {
     return res.status(400).send("No file uploaded");
   }
-  res.status(200).json({ imageUrl: `/uploads/${req.file.filename}` });
+  res.status(200).json({
+    imageUrl: `http://localhost:8000/uploads/${req.file.filename}`,
+  });
 });
 
 module.exports = router;
