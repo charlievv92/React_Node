@@ -7,51 +7,43 @@ import Typography from "@mui/material/Typography";
 // import QuillEditor from "../components/QuillEditor";
 import { Button, CircularProgress, Stack } from "@mui/material";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
-
-// const data = [
-//   {
-//     title: 'Users',
-//     value: '14k',
-//     interval: 'Last 30 days',
-//     trend: 'up',
-//     data: [
-//       200, 24, 220, 260, 240, 380, 100, 240, 280, 240, 300, 340, 320, 360, 340, 380,
-//       360, 400, 380, 420, 400, 640, 340, 460, 440, 480, 460, 600, 880, 920,
-//     ],
-//   },
-//   {
-//     title: 'Conversions',
-//     value: '325',
-//     interval: 'Last 30 days',
-//     trend: 'down',
-//     data: [
-//       1640, 1250, 970, 1130, 1050, 900, 720, 1080, 900, 450, 920, 820, 840, 600, 820,
-//       780, 800, 760, 380, 740, 660, 620, 840, 500, 520, 480, 400, 360, 300, 220,
-//     ],
-//   },
-//   {
-//     title: 'Event count',
-//     value: '200k',
-//     interval: 'Last 30 days',
-//     trend: 'neutral',
-//     data: [
-//       500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510, 530,
-//       520, 410, 530, 520, 610, 530, 520, 610, 530, 420, 510, 430, 520, 510,
-//     ],
-//   },
-// ];
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import QuillEditor from "../components/QuillEditor";
 
 export default function BoardDetails() {
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [contents, setContents] = useState("");
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+  const [authorEmail, setAuthorEmail] = useState("");
+
+  // const [article, setArticle] = useState({});
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
-  const contentRef = useRef(null);
+  const { isLoggedIn, email, clientIp } = useAuth();
+
+  const contentsRef = useRef(null);
   const navigate = useNavigate();
   const { board_id } = useParams();
+  const customModules = {
+    toolbar: {
+      container: [
+        [{ size: ["small", false, "large", "huge"] }],
+        [{ align: [] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        [
+          {
+            color: [],
+          },
+        ],
+      ],
+    },
+  };
+
+  const customStyle = { height: "150px" };
   const serverUrl = process.env.REACT_APP_SERVER_URL;
 
-  // TODO: 게시물 상세 조회시 데이터 보이지 않는 문제 해결(20241115 kwc)
   const getArticleDetails = async () => {
     try {
       console.log(serverUrl);
@@ -61,7 +53,8 @@ export default function BoardDetails() {
       );
       console.log("Article details : ", response.data);
       setTitle(response.data[0].title || "");
-      setContent(response.data[0].contents || "");
+      setContents(response.data[0].contents || "");
+      setAuthorEmail(response.data[0].email || "");
     } catch (error) {
       console.error("Error getting article details!!! ", error);
     } finally {
@@ -69,47 +62,86 @@ export default function BoardDetails() {
     }
   };
 
-  useEffect(() => {
-    getArticleDetails();
-  }, [board_id]);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.innerHTML = ""; // 기존 내용을 초기화
-      contentRef.current.insertAdjacentHTML("beforeend", content); // 새로운 내용을 삽입
-    }
-  }, [content]);
-
-  const handleSubmit = async () => {
+  const getArticleComments = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/board/posts",
-        {
-          title: title,
-          content: content,
-        }
+      console.log(serverUrl);
+
+      const response = await axios.get(
+        `${serverUrl}/api/board/comments/${board_id}`
       );
-      console.log("title : ", title);
-      console.log("content : ", content);
-      console.log("Post created!!! ", response.data);
-      navigate("/boardList");
+      console.log("Article comments : ", response.data);
+      setComments(response.data || []);
+      // setContents(response.data[0].contents || "");
+      // setAuthorEmail(response.data[0].email || "");
     } catch (error) {
-      console.error("Error creating post!!! ", error);
+      console.error("Error getting article details!!! ", error);
+    } finally {
+      setLoading(false); // 데이터 로드 완료 후 로딩 상태 업데이트
     }
   };
+
+  const handleModifyClick = () => {
+    if (email !== authorEmail) {
+      alert("작성자만 수정할 수 있습니다.");
+      return;
+    }
+    navigate(`/articles/modify/${board_id}`, {
+      state: { title, contents, authorEmail },
+    });
+  };
+
+  const handleCommentChange = (value) => {
+    setComment(value);
+    console.log("comment : ", comment);
+  };
+
+  const handleSubmitClick = async () => {
+    if (!isLoggedIn) {
+      alert("로그인 후 댓글을 작성할 수 있습니다.");
+      navigate("/loginpage");
+      return;
+    }
+    const response = await axios.post(`${serverUrl}/api/board/comments`, {
+      board_id: board_id,
+      writer: email,
+      comment: comment,
+      ip_location: clientIp,
+    });
+
+    console.log("comment : ", comment);
+    console.log("Post created!!! ", response.data);
+  };
+
+  useEffect(() => {
+    getArticleDetails();
+    getArticleComments();
+  }, []);
+
+  useEffect(() => {
+    if (contentsRef.current) {
+      contentsRef.current.innerHTML = ""; // 기존 내용을 초기화
+      contentsRef.current.insertAdjacentHTML("beforeend", contents); // 새로운 내용을 삽입
+    }
+  }, [contents]);
 
   if (loading) {
     return <CircularProgress />; // 로딩 중일 때 로딩 스피너 표시
   }
   return (
-    <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
+    <Box
+      sx={{
+        width: "100%",
+        maxWidth: { sm: "100%", md: "1700px" },
+        // minHeight: "800px",
+      }}
+    >
       {/* cards */}
 
       <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
         Board Details
       </Typography>
       <Grid container spacing={2} columns={12}>
-        <Grid size={{ xs: 12, sm: 12 }}>
+        <Grid size={{ xs: 12, sm: 9 }}>
           {/* <Box
             component="form"
             sx={{
@@ -118,75 +150,89 @@ export default function BoardDetails() {
             noValidate
             autoComplete="off"
           > */}
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            제목
-          </Typography>
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            {title}
-          </Typography>
-          {/* <TextField
-            // minRows={20}
-            id="board-title"
-            variant="standard"
-            fullWidth
-            // disabled={true}
+          <Box
             sx={{
-              "& .MuiInputBase-root": {
-                border: "1px",
-                borderTopRightRadius: "none",
-                borderTopLeftRadius: "none",
-              },
+              borderBottom: `1px solid #ccc`,
+              // mb: 2,
+              pt: 3,
+              pb: 2,
             }}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          /> */}
-          <Typography component="h2" variant="h6" sx={{ mt: 2, mb: 2 }}>
-            내용
-          </Typography>
-          {/* <QuillEditor value={content} onChange={handleContentChange} /> */}
-          {/* <TextField
-            // minRows={20}
-            id="board-content"
-            variant="standard"
-            fullWidth
-            multiline
-            rows={26}
-            value={content}
-            disabled={true}
+          >
+            <Typography component="h2" variant="h6">
+              {title}
+            </Typography>
+          </Box>
+
+          <Box
+            ref={contentsRef}
             sx={{
-              "& .MuiInputBase-root": { minHeight: "550px" },
+              borderBottom: `1px solid #ccc`,
+              // borderRadius: "4px",
+              minHeight: "350px",
+              pb: 2,
             }}
-          /> */}
-          <div
-            ref={contentRef}
-            style={{
-              border: "1px solid #ccc",
-              padding: "10px",
-              borderRadius: "4px",
-              minHeight: "200px",
-            }}
-            // dangerouslySetInnerHTML={{ __html: content }}
           />
-          {/* </Box> */}
-        </Grid>
 
-        <Stack
-          direction="row"
-          justifyContent="flex-end"
-          sx={{ width: "100%", mt: 4 }}
-          spacing={2}
-        >
-          <Button onClick={handleSubmit}>작성</Button>
-          {/* <Button disabled>Disabled</Button> */}
-          <Button href="#text-buttons">리스트</Button>
-        </Stack>
-
-        {/* <Grid size={{ xs: 12, lg: 3 }}>
-          <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>
-            <CustomizedTreeView />
-            <ChartUserByCountry />
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            sx={{
+              width: "100%",
+              pt: 2,
+              pb: 2,
+              borderBottom: `1px solid #ccc`,
+              // mt: 2,
+              // mb: 2,
+              // borderBottom: `1px solid #ccc`,
+              // padding: "10px",
+            }}
+            spacing={2}
+            // alignItems="center"
+          >
+            {email === authorEmail && (
+              <Button onClick={handleModifyClick}>수정</Button>
+            )}
+            <Button component={Link} to={`http://localhost:3000/articles`}>
+              리스트
+            </Button>
           </Stack>
-        </Grid> */}
+          <Box
+            sx={{
+              // mb: 2,
+              pt: 3,
+              pb: 2,
+            }}
+          >
+            <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
+              댓글
+            </Typography>
+            <QuillEditor
+              value={comment}
+              modules={customModules}
+              onChange={handleCommentChange}
+              style={customStyle}
+            />
+          </Box>
+
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            sx={{
+              width: "100%",
+              pt: 2,
+              pb: 2,
+              borderBottom: `1px solid #ccc`,
+              // mt: 2,
+              // mb: 2,
+              // borderBottom: `1px solid #ccc`,
+              // padding: "10px",
+            }}
+            spacing={2}
+            // alignItems="center"
+          >
+            <Button onClick={handleSubmitClick}>작성</Button>
+          </Stack>
+        </Grid>
       </Grid>
     </Box>
   );
