@@ -1,6 +1,8 @@
 require("dotenv").config(); // .env파일 읽기
 const express = require("express");
 const session = require('express-session');
+const RedisStore = require('connect-redis').default;
+const redisClient = require('./modules/redisClient');
 const { swaggerUI, swaggerDocs } = require("./modules/swagger");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -26,6 +28,7 @@ app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 //json사용
 app.use(bodyParser.json());
 
+/*
 // 로그인 세션 설정
 app.use(
   session({
@@ -38,6 +41,21 @@ app.use(
       secure: false, // 개발 환경에서는 HTTPS가 아니므로 false
       sameSite: 'lax', // 크로스 도메인 허용: 'lax', 'strict', 'none'
       maxAge: 1 * 1 * 15 * 1000, // 1시간(ms) 동안 쿠키 유지됨, 만료시 브라우저에서 자동으로 삭제됨
+    },
+  })
+);
+*/
+// 로그인 세션 설정
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient, ttl: 60 }), // Redis에 세션 저장 ttl은 세션만료시간(초) , disableTouch: true 하면 TTL갱신 비활성화. 혹은 쿠키도 같이 리프레쉬 할지 결정해야함
+    secret: process.env.SESSION_SECRET || 'default-secret',
+    resave: false, // 변경되지 않은 세션은 저장하지 않음
+    saveUninitialized: false, // 초기화되지 않은 세션은 저장하지 않음
+    cookie: {
+      httpOnly: true,
+      secure: false, // HTTPS가 아니므로 false
+      maxAge: 1 * 1 * 60 * 1000, // 60초(ms)
     },
   })
 );

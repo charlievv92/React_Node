@@ -3,7 +3,9 @@ const router = express.Router();
 const db = require('../config/db');
 const passport = require('../config/passport');
 const bcrypt = require('bcrypt');
+const redisClient = require('../modules/redisClient');
 const saltRounds = 10; // 해싱 라운드: 높을수록 보안 강하지만 속도 저하 있음
+
 
 /**
  * @swagger

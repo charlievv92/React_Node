@@ -231,7 +231,7 @@ export default function SignUp(props) {
             
                 if (response.ok) {
                     alert('회원가입이 성공적으로 완료되었습니다.');
-                    navigate('/');
+                    navigate('/login');
                 } else if(response.status===401){
                   alert('회원가입에 실패했습니다. 이미 존재하는 이메일입니다.');
                   setEmailError(true);

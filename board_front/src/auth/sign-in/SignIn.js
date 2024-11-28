@@ -113,9 +113,8 @@ export default function SignIn(props) {
         console.log("로그인 성공");
         const responseData = await response.json(); // JSON 응답 파싱
 
-        //TODO await function으로 묶어놓기, 응답처리를 확인(기다림) await async - axios 사용 고려하기, 회원가입성공시로그인페이지로가기
-        await setIsLoggedIn(true); // Context에서 가져온 상태 업데이트 함수
-        await setUser(responseData.user);
+        setIsLoggedIn(true); // Context에서 가져온 상태 업데이트 함수
+        setUser(responseData.user);
 
         const from = location.state?.from?.pathname || "/"; // 이전 페이지 정보
         navigate(from); // 이전 페이지로 이동
