@@ -26,7 +26,7 @@ export default function BoardDetails() {
 
   // const [article, setArticle] = useState({});
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
-  const { isLoggedIn, email, clientIp } = useAuth();
+  const { isLoggedIn, user, clientIp } = useAuth();
 
   const contentsRef = useRef(null);
   const navigate = useNavigate();
@@ -91,13 +91,11 @@ export default function BoardDetails() {
   };
 
   const handleModifyClick = () => {
-    if (email !== authorEmail) {
+    if (user.email !== authorEmail) {
       alert("작성자만 수정할 수 있습니다.");
       return;
     }
-    navigate(`/articles/modify/${board_id}`, {
-      state: { title, contents, authorEmail },
-    });
+    navigate(`/articles/modify/${board_id}`);
   };
 
   const handleCommentChange = (value) => {
@@ -113,7 +111,7 @@ export default function BoardDetails() {
     }
     const response = await axios.post(`${serverUrl}/api/board/comments`, {
       board_id: board_id,
-      writer: email,
+      writer: user.email,
       comment: comment,
       ip_location: clientIp,
     });
@@ -186,7 +184,7 @@ export default function BoardDetails() {
         spacing={2}
         // alignItems="center"
       >
-        {email === authorEmail && (
+        {user.email === authorEmail && (
           <Button onClick={handleModifyClick}>수정</Button>
         )}
         <Button component={Link} to={`http://localhost:3000/articles`}>

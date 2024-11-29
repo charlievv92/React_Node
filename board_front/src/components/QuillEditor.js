@@ -28,6 +28,7 @@ export default function QuillEditor({ html, setHtml, modules, style }) {
   const quillRef = useRef(null);
   const serverUrl = process.env.REACT_APP_SERVER_URL;
 
+  // 커스텀 이미지 핸들러
   const imageHandler = () => {
     const input = document.createElement("input");
     input.setAttribute("type", "file");
@@ -62,7 +63,6 @@ export default function QuillEditor({ html, setHtml, modules, style }) {
 
   // console.log(values); // Use the 'values' state variable
 
-  // TODO : 이미지 핸들러 추가 필요(20241126 kwc)
   const defaultModules = useMemo(() => {
     return {
       toolbar: {

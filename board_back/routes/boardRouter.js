@@ -11,21 +11,56 @@ const upload = require("../config/multerConfig");
  *     tags:
  *     - Board API
  *     description: 새 게시물을 작성합니다
- *     produces:
- *     - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: 게시물 제목
+ *               contents:
+ *                 type: string
+ *                 description: 게시물 내용
+ *               writer:
+ *                 type: string
+ *                 description: 작성자 이메일
+ *               ip_location:
+ *                 type: string
+ *                 description: 작성자 IP 주소
  *     responses:
  *       200:
  *         description: OK
+ *       400:
+ *         description: Invalid input
+ *       500:
+ *         description: Server error
  */
 router.post("/posts", (req, res) => {
   const title = req.body.title;
   const contents = req.body.contents;
+  const email = req.body.writer;
+  const ip_location = req.body.ip_location;
+
+  if (!title || !contents) {
+    return res
+      .status(400)
+      .send("Invalid input: Title and contents are required.");
+  }
+
+  if (!email || !ip_location) {
+    return res
+      .status(400)
+      .send("Invalid input: Email and IP location are required.");
+  }
 
   const sqlQuery =
     "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
   db.query(
     sqlQuery,
-    [title, contents, 0, "맑음", new Date(), "aaa@aaa.com", "200.200.1.1"],
+    [title, contents, 0, "맑음", new Date(), email, ip_location],
     (err, result) => {
       if (err) {
         console.error(err);

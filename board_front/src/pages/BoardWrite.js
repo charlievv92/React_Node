@@ -23,59 +23,13 @@ export default function BoardWrite() {
   const [contents, setContents] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, clientIp } = useAuth();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     setPageTitle("Board Write");
   }, [setPageTitle]);
-
-  // TODO: React-Quill 에디터에 업로드된 이미지 삽입 기능 추가할 것(20241125 kwc)
-  // ref 사용 관련 이슈가 있음
-  // const handleImageUpload = async () => {
-  //   const input = document.createElement("input");
-  //   input.setAttribute("type", "file");
-  //   input.setAttribute("accept", "image/*");
-  //   input.onchange = async () => {
-  //     const file = input.files[0];
-  //     const formData = new FormData();
-  //     formData.append("image", file);
-
-  //     const response = await axios.post(
-  //       `${serverUrl}/api/board/upload-image/${board_id}`,
-  //       formData
-  //     );
-  //     const data = await response.data;
-
-  //     // React-Quill 에디터에 업로드된 이미지 URL 삽입
-  //     const quill = quillRef.current.getEditor(); // Quill 인스턴스
-  //     const range = quill.getSelection();
-  //     quill.insertEmbed(range.index, "image", data.imageUrl); // 서버에서 받은 이미지 URL 사용
-  //   };
-  //   input.click();
-  // };
-
-  // const customModules = {
-  //   toolbar: {
-  //     container: [
-  //       [{ size: ["small", false, "large", "huge"] }],
-  //       [{ align: [] }],
-  //       ["bold", "italic", "underline", "strike"],
-  //       [{ list: "ordered" }, { list: "bullet" }],
-  //       [
-  //         {
-  //           color: [],
-  //         },
-  //         { background: [] },
-  //       ],
-  //       ["link", "image", "video"],
-  //     ],
-  //     // handlers: {
-  //     //   image: handleImageUpload, // 커스텀 핸들러 연결
-  //     // },
-  //   },
-  // };
 
   // useEffect(() => { 테스트 필요
   //   if (!isLoggedIn) {
@@ -89,15 +43,39 @@ export default function BoardWrite() {
   //   }
   // }, [isLoggedIn, isEditMode, email, authorEmail, navigate, board_id]);
 
-  // TODO : 게시물 데이터 서버로부터 가져오도록 수정 필요(20241126 kwc)
+  // TODO : (issue)게시물 데이터 서버로부터 호출했으나 데이터 출력 이슈 발생(20241129 kwc)
+  // 훅의 라이프사이클 관련 이슈로 추측되어 해당 부분 수정 필요
   useEffect(() => {
-    if (location.state) {
-      setTitle(location.state.title || "");
-      setContents(location.state.contents || "");
-      setAuthorEmail(location.state.authorEmail || "");
+    const fetchData = async () => {
+      await axios
+        .get(`${process.env.REACT_APP_SERVER_URL}/api/board/posts/${board_id}`)
+        .then((response) => {
+          // data = response.data;
+          console.log("data : ", response.data);
+          setData(response.data);
+          //  setTitle(data.title);
+          //  setContents(data.contents);
+          //  setAuthorEmail(data.email);
+          //  setIsEditMode(true);
+        })
+        .catch((error) => {
+          console.error("Error fetching data!!! ", error);
+          throw error;
+        });
+    };
+
+    const setData = (data) => {
+      // const response = await fetchData();
+      setTitle(data.title);
+      setContents(data.contents);
+      setAuthorEmail(data.email);
       setIsEditMode(true);
+    };
+
+    if (board_id !== undefined) {
+      fetchData();
     }
-  }, [location.state]);
+  }, [board_id]);
 
   const handleContentsChange = (value) => {
     setContents(value);
@@ -137,6 +115,8 @@ export default function BoardWrite() {
           {
             title: title,
             contents: contents,
+            writer: user.email,
+            ip_location: clientIp,
           }
         );
         // .then((response) => {
