@@ -9,6 +9,7 @@ import BoardList from "./pages/BoardList";
 import BoardDetails from "./pages/BoardDetails";
 import SignIn from "./auth/sign-in/SignIn";
 import Signup from "./auth/sign-up/Signup";
+import Adminmain from "./admin/Adminmain";
 import OnlyNotLoginRoute from "./routes/OnlyNotLoginRoute";
 import OnlyLoginRoute from "./routes/OnlyLoginRoute";
 
@@ -40,6 +41,7 @@ function App() {
                 element={<BoardWrite />}
               ></Route>
             </Route>
+
             <Route
               path="/login"
               element={
@@ -49,6 +51,7 @@ function App() {
               }
             />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/admin" element={<Adminmain/>} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

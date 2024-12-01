@@ -12,6 +12,7 @@ import CardAlert from './CardAlert';
 import OptionsMenu from './OptionsMenu';
 import { useAuth } from '../auth/AuthContext';
 import LogoutButton from '../auth/LogoutButton';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -26,10 +27,12 @@ const Drawer = styled(MuiDrawer)({
   },
 });
 
+
 export default function SideMenu() {
 
   //로그인 여부를 확인함
   const { user , clientIp } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <Drawer
@@ -59,6 +62,16 @@ export default function SideMenu() {
           이  름:{user.userName}<br/>
           권  한:{user.authCode}<br/>
           아이피:{clientIp}<br/>
+          {user.authCode==='SC'?
+          <button 
+            style={{backgroundColor:'black', color:'white'}}
+            onClick={() => navigate('/admin')}
+          >
+            관리자페이지
+          </button>
+          :
+          <br/>
+          }
           <LogoutButton/>
         </div>
         

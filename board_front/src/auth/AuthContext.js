@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         const statusData = await statusResponse.json();
         const ipData = await ipResponse.json();
 
-        if (statusData.loggedIn) {
+        if (statusData.user) {
           setUser(statusData.user);
         } else {
           setUser(null);

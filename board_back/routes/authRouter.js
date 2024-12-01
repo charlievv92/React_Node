@@ -14,6 +14,59 @@ function isAdmin(req, res, next) {
   return res.status(403).json({ message: '권한 오류.' }); // 접근 차단
 }
 
+
+router.get('/admin', isAdmin, (req, res) => {
+  res.send('관리자 페이지접속');
+});
+
+//관리자 계정 생성용, auth_code에 위에 관리자값 넣고 할것
+/**
+ * @swagger
+ * /api/auth/adminadd:
+ *   post:
+ *     summary: 어드민 계정 생성
+ *     description: 어드민 계정 생성.
+ *     tags: 
+ *        - Auth
+ */
+router.post('/adminadd', async  (req, res) => {
+
+  try {
+    const hashedPassword = await bcrypt.hash('123456', saltRounds);
+
+    //date_of_joining은 현재시간 auth_code는 기본값으로 설정
+    const sqlQuery = `
+      INSERT INTO user (email, password, user_name, tel_number, address, address_detail, date_of_joining, auth_code)
+      VALUES ('ad123@te.st', ?, '어드민', 'TEST', 'TEST', 'TEST', '2001-01-01', 'SC')
+      `;
+
+    db.query(
+      sqlQuery,
+      [hashedPassword],
+      (err, result) => {
+        if (err) {
+          // 중복된 이메일 처리
+          if (err.code === 'ER_DUP_ENTRY') {
+            console.log('관리자 이미 있음');
+          }
+          // 기타 오류 처리
+          console.log(err.message);
+        }
+
+        // 성공 응답
+        console.log('관리자생성');
+      }
+    );
+  } catch (error) {
+    // 비동기 로직에서 발생한 에러 처리
+    console.error(error);
+    res.status(500).send('서버 오류: 비밀번호 암호화 실패');
+  }
+});
+
+
+
+
 /**
  * @swagger
  * /api/auth/login:

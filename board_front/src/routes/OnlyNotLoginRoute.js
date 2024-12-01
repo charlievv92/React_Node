@@ -4,7 +4,7 @@ import { useAuth } from "../auth/AuthContext";
 const OnlyNotLoginRoute = ({ children }) => {
   const { user } = useAuth();
 
-  if (!user) {
+  if (user) {
     // 로그인 상태라면 메인 페이지로 리다이렉트
     return <Navigate to="/" />;
   }
