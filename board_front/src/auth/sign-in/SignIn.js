@@ -80,7 +80,7 @@ export default function SignIn(props) {
     setOpen(false);
   };
 
-  const { setIsLoggedIn, setUser } = useAuth();
+  const { setUser } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation(); // 현재 위치 가져오기
@@ -113,7 +113,7 @@ export default function SignIn(props) {
         console.log("로그인 성공");
         const responseData = await response.json(); // JSON 응답 파싱
 
-        setIsLoggedIn(true); // Context에서 가져온 상태 업데이트 함수
+        //Context상태 Set
         setUser(responseData.user);
 
         const from = location.state?.from?.pathname || "/"; // 이전 페이지 정보

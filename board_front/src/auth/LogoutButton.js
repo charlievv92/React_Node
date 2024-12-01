@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
 const LogoutButton = () => {
-  const { setUser, setIsLoggedIn } = useAuth();
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -14,7 +14,6 @@ const LogoutButton = () => {
 
       if (response.ok) {
         setUser(null);
-        setIsLoggedIn(false);
         console.log('로그아웃 성공');
         navigate('/'); // 로그아웃 후 메인 페이지로 이동
       } else {

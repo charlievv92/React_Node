@@ -6,6 +6,13 @@ const bcrypt = require('bcrypt');
 const redisClient = require('../modules/redisClient');
 const saltRounds = 10; // 해싱 라운드: 높을수록 보안 강하지만 속도 저하 있음
 
+//관리자 확인
+function isAdmin(req, res, next) {
+  if (req.isAuthenticated() && req.user.auth_code === 'SC') {//TODO:이부분은 추후 협의된 관리자 코드로 변경
+    return next(); // 관리자 접근 허용
+  }
+  return res.status(403).json({ message: '권한 오류.' }); // 접근 차단
+}
 
 /**
  * @swagger
@@ -62,6 +69,8 @@ router.post('/login', (req, res, next) => {
       if (err) {
         return res.status(500).send('세션 생성 실패');
       }
+
+
       res.status(200).json({
         message: '로그인 성공',
         user: {
@@ -101,7 +110,7 @@ router.post('/logout', (req, res) => {
         return res.status(500).send('세션 삭제 실패');
       }
       // 클라이언트 쿠키 삭제
-      res.clearCookie('dev_session_cookie'); // 세션 쿠키 이름과 동일해야 함
+      res.clearCookie('connect.sid'); // 세션 쿠키 이름과 동일해야 함
       res.status(200).send('로그아웃 성공');
     });
   });
@@ -283,11 +292,10 @@ router.post('/signinUser', async  (req, res) => {
  *                       type: string
  */
 router.get('/status', (req, res) => {
-  // Passport를 통해 인증된 사용자인지 확인
+  // Passport를 통해 인증(로그인)된 사용자인지 확인
   if (req.isAuthenticated()) {
     // 인증된 사용자 정보 반환
     res.status(200).json({
-      loggedIn: true,
       user: {
         email: req.user.email,
         userName: req.user.user_name,
@@ -297,7 +305,7 @@ router.get('/status', (req, res) => {
   } else {
     // 인증되지 않은 상태
     res.status(200).json({
-      loggedIn: false,
+      user:null
     });
   }
 });

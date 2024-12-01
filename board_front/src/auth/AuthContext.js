@@ -6,7 +6,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
  *
  * 사용할곳에서는
  * import { useAuth } from '../AuthContext';
- * const { isLoggedIn, user, clientIp } = useAuth();
+ * const { user, clientIp } = useAuth();
  * user.email, user.userName, user.authCode
  * 이렇게 현재 로그인되어있는 정보들을 가져와서 사용가능
  */
@@ -16,7 +16,6 @@ const AuthContext = createContext();
 // Provider 컴포넌트
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [clientIp, setClientIp] = useState("");
 
   useEffect(() => {
@@ -32,10 +31,8 @@ export const AuthProvider = ({ children }) => {
 
         if (statusData.loggedIn) {
           setUser(statusData.user);
-          setIsLoggedIn(true);
         } else {
           setUser(null);
-          setIsLoggedIn(false);
         }
 
         setClientIp(ipData.ip);
@@ -48,8 +45,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    //TODO:isLoggedIn 지우고 user의 authCode써보기
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, clientIp }}>
+
+    <AuthContext.Provider value={{ user, setUser, clientIp }}>
       {children}
     </AuthContext.Provider>
   );

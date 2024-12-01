@@ -29,7 +29,7 @@ const Drawer = styled(MuiDrawer)({
 export default function SideMenu() {
 
   //로그인 여부를 확인함
-  const { isLoggedIn, user , clientIp } = useAuth();
+  const { user , clientIp } = useAuth();
 
   return (
     <Drawer
@@ -41,7 +41,7 @@ export default function SideMenu() {
         },
       }}
     >
-      {isLoggedIn ?(
+      {user ?(
         /*
         <Box
           sx={{
@@ -65,7 +65,7 @@ export default function SideMenu() {
       ) : (
         <div>
           <h2 style={{textAlign: 'center'}}>
-            로그인하십시오 휴먼</h2>
+            비로그인 {clientIp}</h2>
         </div>
       )}
       

@@ -5,6 +5,7 @@ const RedisStore = require('connect-redis').default;
 const redisClient = require('./modules/redisClient');
 const { swaggerUI, swaggerDocs } = require("./modules/swagger");
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 const cors = require("cors");
 const db = require("./config/db");
 const app = express();
@@ -27,38 +28,39 @@ app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 //json사용
 app.use(bodyParser.json());
+//쿠키갱신용
+app.use(cookieParser());
 
-/*
 // 로그인 세션 설정
 app.use(
   session({
-    name: 'dev_session_cookie',
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false, //세션이 변경되지 않아도 매요청시 저장되는옵션 비효율적이기때문에 권장되지않음
-    cookie: {
-      httpOnly: true,
-      secure: false, // 개발 환경에서는 HTTPS가 아니므로 false
-      sameSite: 'lax', // 크로스 도메인 허용: 'lax', 'strict', 'none'
-      maxAge: 1 * 1 * 15 * 1000, // 1시간(ms) 동안 쿠키 유지됨, 만료시 브라우저에서 자동으로 삭제됨
-    },
-  })
-);
-*/
-// 로그인 세션 설정
-app.use(
-  session({
-    store: new RedisStore({ client: redisClient, ttl: 60 }), // Redis에 세션 저장 ttl은 세션만료시간(초) , disableTouch: true 하면 TTL갱신 비활성화. 혹은 쿠키도 같이 리프레쉬 할지 결정해야함
+    store: new RedisStore({ client: redisClient, ttl: 3600 }), // Redis에 세션 저장 ttl은 세션만료시간(초) , disableTouch: true 하면 TTL갱신 비활성화. 혹은 쿠키도 같이 리프레쉬 할지 결정해야함
     secret: process.env.SESSION_SECRET || 'default-secret',
     resave: false, // 변경되지 않은 세션은 저장하지 않음
     saveUninitialized: false, // 초기화되지 않은 세션은 저장하지 않음
     cookie: {
       httpOnly: true,
       secure: false, // HTTPS가 아니므로 false
-      maxAge: 1 * 1 * 60 * 1000, // 60초(ms)
+      sameSite: 'lax',
+      maxAge: 1 * 60 * 60 * 1000, // 1시간(ms)
     },
   })
 );
+
+//세션이나 쿠키가 존재 할경우 요청이 있을때 쿠키 지속시간을 갱신합니다.
+app.use((req, res, next) => {
+  if (req.session && req.cookies['connect.sid']) {
+    // 쿠키 리프레쉬
+    res.cookie('connect.sid', req.cookies['connect.sid'], {
+      httpOnly: true,
+      secure: false, // HTTPS 사용 시 true
+      sameSite: 'lax',
+      maxAge: 1 * 60 * 60 * 1000, // 1시간(ms)
+    });
+    console.log('쿠키 만료 시간이 갱신되었습니다.');
+  }
+  next();
+});
 
 // Passport 초기화
 app.use(passport.initialize());
