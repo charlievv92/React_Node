@@ -5,7 +5,13 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 // import TextField from "@mui/material/TextField";
 // import QuillEditor from "../components/QuillEditor";
-import { Button, CircularProgress, Stack } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  List,
+  Stack,
+  TextField,
+} from "@mui/material";
 import axios from "axios";
 import {
   Link,
@@ -15,6 +21,7 @@ import {
 } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import QuillEditor from "../components/QuillEditor";
+import AlignItemsList from "../components/AlignItemsList";
 
 export default function BoardDetails() {
   const { setPageTitle } = useOutletContext();
@@ -103,10 +110,10 @@ export default function BoardDetails() {
     console.log("comment : ", comment);
   };
 
-  const handleSubmitClick = async () => {
+  const handleCommentSubmitClick = async () => {
     if (!isLoggedIn) {
       alert("로그인 후 댓글을 작성할 수 있습니다.");
-      navigate("/loginpage");
+      navigate("/login");
       return;
     }
     const response = await axios.post(`${serverUrl}/api/board/comments`, {
@@ -118,6 +125,8 @@ export default function BoardDetails() {
 
     console.log("comment : ", comment);
     console.log("Post created!!! ", response.data);
+    getArticleComments();
+    setComment("");
   };
 
   useEffect(() => {
@@ -136,8 +145,9 @@ export default function BoardDetails() {
     return <CircularProgress />; // 로딩 중일 때 로딩 스피너 표시
   }
   return (
-    <Grid size={{ xs: 12, sm: 9 }}>
-      {/* <Box
+    <>
+      <Grid size={{ xs: 12, sm: 9 }}>
+        {/* <Box
             component="form"
             sx={{
               "& .MuiTextField-root": { m: 1, width: "100ch" },
@@ -145,88 +155,153 @@ export default function BoardDetails() {
             noValidate
             autoComplete="off"
           > */}
-      <Box
-        sx={{
-          borderBottom: `1px solid #ccc`,
-          // mb: 2,
-          pt: 3,
-          pb: 2,
-        }}
-      >
-        <Typography component="h2" variant="h6">
-          {title}
-        </Typography>
-      </Box>
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+          sx={{
+            borderBottom: `1px solid #ccc`,
+            // mb: 2,
+            pt: 3,
+            pb: 2,
+          }}
+        >
+          <Stack direction={"row"}>
+            <Typography component="h2" variant="h6" sx={{ pr: 1 }}>
+              제목 :
+            </Typography>
+            <Typography component="h2" variant="h5">
+              {title}
+            </Typography>
+          </Stack>
+          <Stack direction={"row"}>
+            <Typography component="h2" variant="h6" sx={{ pr: 1 }}>
+              작성자 :
+            </Typography>
+            <Typography component="h2" variant="h6">
+              {authorEmail}
+            </Typography>
+          </Stack>
+        </Stack>
 
-      <Box
-        ref={contentsRef}
-        sx={{
-          borderBottom: `1px solid #ccc`,
-          // borderRadius: "4px",
-          minHeight: "350px",
-          pb: 2,
-        }}
-      />
-
-      <Stack
-        direction="row"
-        justifyContent="flex-end"
-        sx={{
-          width: "100%",
-          pt: 2,
-          pb: 2,
-          borderBottom: `1px solid #ccc`,
-          // mt: 2,
-          // mb: 2,
-          // borderBottom: `1px solid #ccc`,
-          // padding: "10px",
-        }}
-        spacing={2}
-        // alignItems="center"
-      >
-        {user.email === authorEmail && (
-          <Button onClick={handleModifyClick}>수정</Button>
-        )}
-        <Button component={Link} to={`http://localhost:3000/articles`}>
-          리스트
-        </Button>
-      </Stack>
-      <Box
-        sx={{
-          // mb: 2,
-          pt: 3,
-          pb: 2,
-        }}
-      >
-        <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
-          댓글
-        </Typography>
-        <QuillEditor
-          value={comment}
-          modules={customModules}
-          onChange={handleCommentChange}
-          style={customStyle}
+        <Box
+          ref={contentsRef}
+          sx={{
+            borderBottom: `1px solid #ccc`,
+            // borderRadius: "4px",
+            minHeight: "350px",
+            pb: 2,
+          }}
         />
-      </Box>
 
-      <Stack
-        direction="row"
-        justifyContent="flex-end"
-        sx={{
-          width: "100%",
-          pt: 2,
-          pb: 2,
-          borderBottom: `1px solid #ccc`,
-          // mt: 2,
-          // mb: 2,
-          // borderBottom: `1px solid #ccc`,
-          // padding: "10px",
-        }}
-        spacing={2}
-        // alignItems="center"
-      >
-        <Button onClick={handleSubmitClick}>작성</Button>
-      </Stack>
-    </Grid>
+        <Stack
+          direction="row"
+          justifyContent="flex-end"
+          sx={{
+            width: "100%",
+            pt: 2,
+            pb: 2,
+            borderBottom: `1px solid #ccc`,
+            // mt: 2,
+            // mb: 2,
+            // borderBottom: `1px solid #ccc`,
+            // padding: "10px",
+          }}
+          spacing={2}
+          // alignItems="center"
+        >
+          {!user ||
+            (user.email === authorEmail && (
+              <Button onClick={handleModifyClick}>수정</Button>
+            ))}
+          <Button component={Link} to={`http://localhost:3000/articles`}>
+            리스트
+          </Button>
+        </Stack>
+        <Box
+          sx={{
+            // mb: 2,
+            pt: 3,
+            pb: 2,
+          }}
+        >
+          <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
+            댓글
+          </Typography>
+          <TextField
+            // minRows={20}
+            id="board-comment"
+            variant="standard"
+            sx={{
+              "& .MuiInputBase-root": {
+                border: "1px",
+                borderTopRightRadius: "none",
+                borderTopLeftRadius: "none",
+                boxShadow: "none",
+              },
+            }}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          {/* <QuillEditor
+            html={comment}
+            modules={customModules}
+            setHtml={handleCommentChange}
+            style={customStyle}
+          /> */}
+        </Box>
+
+        <Stack
+          direction="row"
+          justifyContent="flex-end"
+          sx={{
+            width: "100%",
+            pt: 2,
+            pb: 2,
+            borderBottom: `1px solid #ccc`,
+            // mt: 2,
+            // mb: 2,
+            // borderBottom: `1px solid #ccc`,
+            // padding: "10px",
+          }}
+          spacing={2}
+          // alignItems="center"
+        >
+          <Button onClick={handleCommentSubmitClick}>작성</Button>
+        </Stack>
+      </Grid>
+      <Grid size={{ xs: 12, sm: 3 }}>
+        <Box
+          sx={{
+            // mb: 2,
+            pt: 3,
+            pb: 2,
+          }}
+        >
+          <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
+            댓글
+          </Typography>
+          {comments.length !== 0 && <AlignItemsList items={comments} />}
+
+          {/* {comments.map((comment) => (
+            <Box
+              key={comment.id}
+              sx={{
+                borderBottom: `1px solid #ccc`,
+                // borderRadius: "4px",
+                minHeight: "50px",
+                pb: 2,
+              }}
+            >
+              <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
+                {comment.writer}
+              </Typography>
+              <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
+                {comment.comment}
+              </Typography>
+            </Box>
+          ))} */}
+        </Box>
+      </Grid>
+    </>
   );
 }

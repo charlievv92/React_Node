@@ -52,7 +52,7 @@ export default function BoardWrite() {
         .then((response) => {
           // data = response.data;
           console.log("data : ", response.data);
-          setData(response.data);
+          setData(response.data[0]);
           //  setTitle(data.title);
           //  setContents(data.contents);
           //  setAuthorEmail(data.email);
@@ -64,7 +64,7 @@ export default function BoardWrite() {
         });
     };
 
-    const setData = (data) => {
+    const setData = async (data) => {
       // const response = await fetchData();
       setTitle(data.title);
       setContents(data.contents);
@@ -75,11 +75,27 @@ export default function BoardWrite() {
     if (board_id !== undefined) {
       fetchData();
     }
-  }, [board_id]);
+  }, [board_id, title, contents, authorEmail]);
 
   const handleContentsChange = (value) => {
     setContents(value);
     console.log("contents : ", contents);
+  };
+
+  const loginCheck = () => {
+    if (!isLoggedIn) {
+      alert("로그인이 필요합니다.");
+      return false;
+    }
+    return true;
+  };
+
+  const titleCheck = () => {
+    if (title.trim() === "") {
+      alert("제목을 입력해주세요.");
+      return false;
+    }
+    return true;
   };
 
   const contentsCheck = () => {
@@ -94,6 +110,14 @@ export default function BoardWrite() {
   };
 
   const handleSubmit = async () => {
+    if (!loginCheck) {
+      return;
+    }
+
+    if (!titleCheck()) {
+      return;
+    }
+
     if (!contentsCheck()) {
       return;
     }

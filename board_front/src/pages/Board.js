@@ -61,11 +61,11 @@ export default function Board(props) {
             <Box
               sx={{
                 width: "100%",
-                maxWidth: { sm: "100%", md: "1700px" },
+                // maxWidth: { sm: "100%", md: "1700px" }, // 20241201 해상도에 따른 화면 비율 관련 수정 kwc
                 // minHeight: "800px",
               }}
             >
-              <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
+              <Typography component="h2" variant="h4" sx={{ mb: 2 }}>
                 {pageTitle}
               </Typography>
               <Grid container spacing={2} columns={12}>
