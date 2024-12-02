@@ -3,7 +3,6 @@ import { useAuth } from "../auth/AuthContext";
 
 const OnlyLoginRoute = ({ children }) => {
   const { user } = useAuth();
-  const { isLoggedIn } = useAuth();
   const location = useLocation();
 
   if (!user) {
