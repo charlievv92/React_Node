@@ -23,22 +23,33 @@ function App() {
             <Route path="/" element={<Board />}>
               <Route path="/" element={<MainGrid />}></Route>
               <Route
-               path="/mypage" 
-               element={
-                <OnlyLoginRoute>
-                  <Mypage />
-                </OnlyLoginRoute>
+                path="/mypage"
+                element={
+                  <OnlyLoginRoute>
+                    <Mypage />
+                  </OnlyLoginRoute>
                 }
               />
               <Route path="/articles" element={<BoardList />}></Route>
-              <Route path="/articles/write" element={<BoardWrite />}></Route>
+              <Route
+                path="/articles/write"
+                element={
+                  <OnlyLoginRoute>
+                    <BoardWrite />
+                  </OnlyLoginRoute>
+                }
+              />
               <Route
                 path="/articles/:board_id"
                 element={<BoardDetails />}
               ></Route>
               <Route
                 path="/articles/modify/:board_id"
-                element={<BoardWrite />}
+                element={
+                  <OnlyLoginRoute>
+                    <BoardWrite />
+                  </OnlyLoginRoute>
+                }
               ></Route>
             </Route>
 
