@@ -43,8 +43,6 @@ export default function BoardWrite() {
   //   }
   // }, [isLoggedIn, isEditMode, email, authorEmail, navigate, board_id]);
 
-  // TODO : (issue)게시물 데이터 서버로부터 호출했으나 데이터 출력 이슈 발생(20241129 kwc)
-  // 훅의 라이프사이클 관련 이슈로 추측되어 해당 부분 수정 필요
   useEffect(() => {
     const fetchData = async () => {
       await axios
@@ -75,7 +73,7 @@ export default function BoardWrite() {
     if (board_id !== undefined) {
       fetchData();
     }
-  }, [board_id, title, contents, authorEmail]);
+  }, [board_id]);
 
   const handleContentsChange = (value) => {
     setContents(value);

@@ -11,6 +11,9 @@ import { Link, useOutletContext } from "react-router-dom";
 
 export default function BoardList() {
   // TODO: 게시물 검색 기능 및 페이지네이션 관련 기능 추가(20241121 kwc)
+  // TODO: 공지사항 기능 추가 -> 1페이지에 게시물 총 15개 + @ 게시일 최신순으로 보이게(20241202 kwc)
+  // TODO: 공지 게시물로 전환 버튼 추가(20241202 kwc)
+  // TODO: 공지 게시물은 공지 배열에 날짜 순으로 추가(20241202 kwc)
   const { setPageTitle } = useOutletContext();
   const [boardList, setBoardList] = useState([]);
 

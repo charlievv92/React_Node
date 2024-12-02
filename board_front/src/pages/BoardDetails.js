@@ -24,6 +24,11 @@ import QuillEditor from "../components/QuillEditor";
 import AlignItemsList from "../components/AlignItemsList";
 
 export default function BoardDetails() {
+  // TODO: 게시물 삭제 기능 추가(20241202 kwc)
+  // TODO: 게시물 삭제 시 확인창 추가(20241202 kwc)
+  // TODO: 게시물 수정 시 확인창 추가(20241202 kwc)
+  // TODO: 게시물 삭제 버튼 권한에 따라 보이게 처리(20241202 kwc)
+
   const { setPageTitle } = useOutletContext();
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
@@ -33,28 +38,28 @@ export default function BoardDetails() {
 
   // const [article, setArticle] = useState({});
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
-  const { isLoggedIn, user, clientIp } = useAuth();
+  const { user, clientIp } = useAuth();
 
   const contentsRef = useRef(null);
   const navigate = useNavigate();
   const { board_id } = useParams();
-  const customModules = {
-    toolbar: {
-      container: [
-        [{ size: ["small", false, "large", "huge"] }],
-        [{ align: [] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [
-          {
-            color: [],
-          },
-        ],
-      ],
-    },
-  };
+  // const customModules = {
+  //   toolbar: {
+  //     container: [
+  //       [{ size: ["small", false, "large", "huge"] }],
+  //       [{ align: [] }],
+  //       ["bold", "italic", "underline", "strike"],
+  //       [{ list: "ordered" }, { list: "bullet" }],
+  //       [
+  //         {
+  //           color: [],
+  //         },
+  //       ],
+  //     ],
+  //   },
+  // };
 
-  const customStyle = { height: "150px" };
+  // const customStyle = { height: "150px" };
   const serverUrl = process.env.REACT_APP_SERVER_URL;
 
   useEffect(() => {
@@ -88,8 +93,6 @@ export default function BoardDetails() {
       );
       console.log("Article comments : ", response.data);
       setComments(response.data || []);
-      // setContents(response.data[0].contents || "");
-      // setAuthorEmail(response.data[0].email || "");
     } catch (error) {
       console.error("Error getting article details!!! ", error);
     } finally {
@@ -105,13 +108,13 @@ export default function BoardDetails() {
     navigate(`/articles/modify/${board_id}`);
   };
 
-  const handleCommentChange = (value) => {
-    setComment(value);
-    console.log("comment : ", comment);
-  };
+  // const handleCommentChange = (value) => {
+  //   setComment(value);
+  //   console.log("comment : ", comment);
+  // };
 
   const handleCommentSubmitClick = async () => {
-    if (!isLoggedIn) {
+    if (!user) {
       alert("로그인 후 댓글을 작성할 수 있습니다.");
       navigate("/login");
       return;
