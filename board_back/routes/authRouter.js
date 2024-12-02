@@ -37,7 +37,7 @@ router.post('/adminadd', async  (req, res) => {
     //date_of_joining은 현재시간 auth_code는 기본값으로 설정
     const sqlQuery = `
       INSERT INTO user (email, password, user_name, tel_number, address, address_detail, date_of_joining, auth_code)
-      VALUES ('ad123@te.st', ?, '어드민', 'TEST', 'TEST', 'TEST', '2001-01-01', 'SC')
+      VALUES ('ad123@te.st', ?, '어드민', 'TEST', 'TEST', 'TEST', '2001-01-01', 'A0')
       `;
 
     db.query(
@@ -289,7 +289,7 @@ router.post('/signinUser', async  (req, res) => {
     //date_of_joining은 현재시간 auth_code는 기본값으로 설정
     const sqlQuery = `
       INSERT INTO user (email, password, user_name, tel_number, address, address_detail, date_of_joining, auth_code)
-      VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE(), 'T0')
+      VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE(), 'N0')
       `;
 
     db.query(
