@@ -62,6 +62,7 @@ export default function SideMenu() {
           이  름:{user.userName}<br/>
           권  한:{user.authCode}<br/>
           아이피:{clientIp}<br/>
+          {/*TODO:테스트시 authcode변경할것 */}
           {user.authCode==='SC'?
           <button 
             style={{backgroundColor:'black', color:'white'}}
