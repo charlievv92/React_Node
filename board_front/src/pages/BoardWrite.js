@@ -122,7 +122,7 @@ export default function BoardWrite() {
     let response = {};
     try {
       if (isEditMode) {
-        response = await axios.put(
+        response = await axios.patch(
           `${process.env.REACT_APP_SERVER_URL}/api/board/posts`,
           {
             board_id: board_id,

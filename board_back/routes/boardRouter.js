@@ -147,7 +147,7 @@ router.get("/posts/:board_id", (req, res) => {
 /**
  * @swagger
  * /api/board/posts:
- *   put:
+ *   patch:
  *     summary: 게시물 데이터 수정
  *     tags:
  *     - Board API
@@ -171,7 +171,7 @@ router.get("/posts/:board_id", (req, res) => {
  *       200:
  *         description: OK
  */
-router.put("/posts", (req, res) => {
+router.patch("/posts", (req, res) => {
   const title = req.body.title;
   const contents = req.body.contents;
   const board_id = req.body.board_id;
@@ -188,6 +188,66 @@ router.put("/posts", (req, res) => {
     }
   });
   console.log("Request received");
+});
+
+/**
+ * @swagger
+ * /api/board/posts/{board_id}:
+ *   delete:
+ *     summary: 게시물 데이터 삭제
+ *     tags:
+ *     - Board API
+ *     description: board_id에 해당하는 게시물의 데이터를 삭제합니다(논리적 삭제)
+ *     parameters:
+ *     - name: board_id
+ *       in: path
+ *       description: 게시물 ID
+ *       required: true
+ *       schema:
+ *         type: integer
+ *     responses:
+ *      200:
+ *        description: Successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                code:
+ *                  type: integer
+ *                data:
+ *                  type: object
+ *                msg:
+ *                  type: string
+ *      400:
+ *        description: Bad Request
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
+ */
+router.delete("/posts/:board_id", (req, res) => {
+  const board_id = req.params.board_id;
+
+  if (!board_id) {
+    return res.status(400).json({ code: 400, msg: "Bad Request: Missing id" });
+  }
+
+  const sqlQuery = "UPDATE board SET is_deleted = true WHERE board_id = ?";
+  db.query(sqlQuery, [board_id], (err, result) => {
+    if (err) {
+      console.error("Error deleting post:", err);
+      return res.status(500).json({ code: 500, msg: "Server Error" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ code: 404, msg: "Not Found: No post with the given id" });
+    }
+
+    res.status(200).json({ code: 200, msg: "Successfully deleted" });
+  });
 });
 
 /**

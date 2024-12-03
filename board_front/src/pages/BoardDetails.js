@@ -22,6 +22,8 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import QuillEditor from "../components/QuillEditor";
 import AlignItemsList from "../components/AlignItemsList";
+import ConfirmDialog from "../auth/sign-up/Confirm";
+import { useDialog } from "../auth/sign-up/useDialog";
 
 export default function BoardDetails() {
   // TODO: 게시물 삭제 기능 추가(20241202 kwc)
@@ -43,6 +45,7 @@ export default function BoardDetails() {
   const contentsRef = useRef(null);
   const navigate = useNavigate();
   const { board_id } = useParams();
+  const { isOpen, openDialog, handleConfirm, handleCancel } = useDialog();
   // const customModules = {
   //   toolbar: {
   //     container: [
@@ -132,6 +135,19 @@ export default function BoardDetails() {
     setComment("");
   };
 
+  const handleDeleteClick = async () => {
+    const confirm = await openDialog();
+
+    if (confirm) {
+      const response = await axios.delete(
+        `${serverUrl}/api/board/posts/${board_id}`
+      );
+      console.log("Post deleted!!! ", response.data);
+      alert(response.data.msg);
+      navigate("/articles");
+    }
+  };
+
   useEffect(() => {
     getArticleDetails();
     getArticleComments();
@@ -212,14 +228,25 @@ export default function BoardDetails() {
           spacing={2}
           // alignItems="center"
         >
+          <Button component={Link} to={`http://localhost:3000/articles`}>
+            리스트
+          </Button>
           {!user ||
             (user.email === authorEmail && (
               <Button onClick={handleModifyClick}>수정</Button>
             ))}
-          <Button component={Link} to={`http://localhost:3000/articles`}>
-            리스트
-          </Button>
+          {!user ||
+            (user.email === authorEmail && (
+              // || (user.auth_code === "T0")
+              <Button onClick={handleDeleteClick}>삭제</Button>
+            ))}
         </Stack>
+        <ConfirmDialog
+          open={isOpen}
+          title="해당 게시물을 삭제하시겠어요?"
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
         <Box
           sx={{
             // mb: 2,
