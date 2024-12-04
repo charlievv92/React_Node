@@ -4,7 +4,7 @@ const path = require("path");
 // 파일 저장 경로 및 파일명 설정
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads")); // 파일 저장 경로
+    cb(null, path.join(__dirname, "../public/uploads")); // 파일 저장 경로
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

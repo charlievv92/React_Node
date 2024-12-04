@@ -8,7 +8,7 @@ import Divider from "@mui/material/Divider";
 import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
 import Link from "@mui/material/Link";
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
@@ -20,7 +20,6 @@ import AppTheme from "../../shared-theme/AppTheme";
 import ColorModeSelect from "../../shared-theme/ColorModeSelect";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext";
-
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -251,7 +250,7 @@ export default function SignIn(props) {
               <span>
                 <Link
                   component={RouterLink}
-                  to='/signup'
+                  to="/signup"
                   variant="body2"
                   sx={{ alignSelf: "center" }}
                 >
