@@ -77,14 +77,17 @@ export default function BoardDetails() {
         `${serverUrl}/api/board/posts/${board_id}`
       );
       console.log("Article details : ", response.data);
-      setTitle(response.data[0].title || "");
-      setContents(response.data[0].contents || "");
-      setAuthorEmail(response.data[0].email || "");
+      setTitle(response.data.data[0].title || "");
+      setContents(response.data.data[0].contents || "");
+      setAuthorEmail(response.data.data[0].email || "");
+
+      getArticleComments();
     } catch (error) {
       console.error("Error getting article details!!! ", error);
-    } finally {
-      setLoading(false); // 데이터 로드 완료 후 로딩 상태 업데이트
     }
+    //  finally {
+    //   setLoading(false); // 데이터 로드 완료 후 로딩 상태 업데이트
+    // }
   };
 
   const getArticleComments = async () => {
@@ -139,9 +142,9 @@ export default function BoardDetails() {
     const confirm = await openDialog();
 
     if (confirm) {
-      const response = await axios.delete(
-        `${serverUrl}/api/board/posts/${board_id}`
-      );
+      const response = await axios.delete(`${serverUrl}/api/board/posts`, {
+        data: { board_ids: [board_id] },
+      });
       console.log("Post deleted!!! ", response.data);
       alert(response.data.msg);
       navigate("/articles");
@@ -150,7 +153,7 @@ export default function BoardDetails() {
 
   useEffect(() => {
     getArticleDetails();
-    getArticleComments();
+    // getArticleComments();
   }, []);
 
   useEffect(() => {
@@ -160,9 +163,9 @@ export default function BoardDetails() {
     }
   }, [contents]);
 
-  if (loading) {
-    return <CircularProgress />; // 로딩 중일 때 로딩 스피너 표시
-  }
+  // if (loading) {
+  //   return <CircularProgress />; // 로딩 중일 때 로딩 스피너 표시
+  // }
   return (
     <>
       <Grid size={{ xs: 12, sm: 9 }}>
