@@ -215,10 +215,8 @@ router.post('/login', (req, res, next) => {
       if (err) {
         return res.status(500).send('세션 생성 실패');
       }
-
-
       res.status(200).json({
-        message: '로그인 성공',
+        message: "로그인 성공",
         user: {
           email: user.email,
           userName: user.user_name,
