@@ -43,15 +43,15 @@ app.use(cookieParser());
 // 로그인 세션 설정
 app.use(
   session({
-    store: new RedisStore({ client: redisClient, ttl: 30 }), // Redis에 세션 저장 ttl은 세션만료시간(초) , disableTouch: true 하면 TTL갱신 비활성화. 혹은 쿠키도 같이 리프레쉬 할지 결정해야함
+    store: new RedisStore({ client: redisClient, ttl: 3600 }), // Redis에 세션 저장 ttl은 세션만료시간(초) , disableTouch: true 하면 TTL갱신 비활성화. 혹은 쿠키도 같이 리프레쉬 할지 결정해야함
     secret: process.env.SESSION_SECRET || "default-secret",
     resave: false, // 변경되지 않은 세션은 저장하지 않음
     saveUninitialized: false, // 초기화되지 않은 세션은 저장하지 않음
     cookie: {
       httpOnly: true,
       secure: false, // HTTPS가 아니므로 false
-      sameSite: "lax",
-      maxAge: 1 * 1 * 30 * 1000, // 1시간(ms)
+      sameSite: "None",
+      maxAge: 1 * 60 * 60 * 1000, // 1시간(ms)
     },
   })
 );
@@ -60,13 +60,13 @@ app.use(
 app.use((req, res, next) => {
   console.log("Cookies:", req.cookies);
   console.log("Session:", req.session);
-  if (req.session && req.cookies["connect.sid"]) {
+  if (req.session || req.cookies["connect.sid"]) {
     // 쿠키 리프레쉬
     res.cookie("connect.sid", req.cookies["connect.sid"], {
       httpOnly: true,
       secure: false, // HTTPS 사용 시 true
-      sameSite: "lax",
-      maxAge: 1 * 1 * 30 * 1000, // 1시간(ms)
+      sameSite: "None",
+      maxAge: 1 * 60 * 60 * 1000, // 1시간(ms)
     });
     console.log("쿠키 만료 시간이 갱신되었습니다.");
 

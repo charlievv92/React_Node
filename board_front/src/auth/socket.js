@@ -1,8 +1,10 @@
 import { io } from "socket.io-client";
 
 const socket = io(process.env.REACT_APP_SERVER_URL, {
-  withCredentials: true,
-
+  withCredentials: true, // 쿠키 포함
+  extraHeaders: {
+    "Access-Control-Allow-Credentials": "true",
+  },
 });
 socket.on("connect", () => {
   console.log("소켓 연결 성공:", socket.id);

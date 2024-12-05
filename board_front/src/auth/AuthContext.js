@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   return () => {
     socket.off("session-expired");
   };
-}, []);
+  }, []);
 
   return (
 

@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import AdminBoardList from './components/AdminBoardList';
-import AdminUserList from './components/AdminUserList';
 import AdminHeader from './components/AdminHeader';
+import { Outlet } from 'react-router-dom';
 
-export default function Adminmain() {
+export default function AdminLayout() {
 
   const [selectedMenu, setSelectedMenu] = useState('유저목록');
-
-  const renderContent = () => {
+  const [pageTitle, setPageTitle] = useState("");
+  // //TODO:react-router 사용할것
+  // const renderContent = () => {
     
-    if (selectedMenu === '유저목록') {
-      return <AdminUserList />;
-    } else if (selectedMenu === '게시글') {
-      return <AdminBoardList />;
-    }
-    return null;
-  };
+  //   if (selectedMenu === '유저목록') {
+  //     return <AdminUserList />;
+  //   } else if (selectedMenu === '게시글') {
+  //     return <AdminBoardList />;
+  //   }
+  //   return null;
+  // };
 
   return (
     <Box sx={{ width: "100%", maxWidth: "100%", minHeight: "100vh" }}>
@@ -44,7 +44,7 @@ export default function Adminmain() {
             md={10} // 중간 화면 이상에서 중앙에 위치
             sx={{ mx: "auto", width: "70%" }} // 자동 중앙 정렬, 컴포넌트 범위설정
           >
-            {renderContent()}
+          <Outlet context={{setPageTitle}}></Outlet>
           </Grid>
         </Grid>
       </Box>

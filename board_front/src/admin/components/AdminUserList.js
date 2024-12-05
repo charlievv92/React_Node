@@ -7,7 +7,7 @@ import { Button, ButtonGroup } from '@mui/material';
 const columns = [
   { field: 'id', headerName: '이메일', width: 300, flex: 1 },
   { field: 'user_name', headerName: '이름', width: 150, flex: 1 },
-  { field: 'date_of_joining', headerName: '가입일', width: 150, flex: 1 },
+  { field: 'date_of_joining', headerName: '가입일', width: 150, flex: 1 ,valueGetter: (value) => new Date(value).toLocaleDateString()},
   { field: 'auth_code', headerName: '권한코드', width: 110, flex: 1 },
   { field: 'deleted', headerName: '삭제여부', width: 110, flex: 1 },
 ];

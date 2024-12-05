@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { Button, ButtonGroup } from '@mui/material';
+import CustomizedDataGrid from '../../components/CustomizedDataGrid';
 import BoardList from '../../pages/BoardList';
 
 
