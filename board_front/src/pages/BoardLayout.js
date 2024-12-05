@@ -27,7 +27,7 @@ const xThemeComponents = {
   ...treeViewCustomizations,
 };
 
-export default function Board(props) {
+export default function BoardLayout(props) {
   const [pageTitle, setPageTitle] = React.useState("");
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>

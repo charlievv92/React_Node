@@ -3,6 +3,18 @@ const router = express.Router();
 const db = require("../config/db");
 const upload = require("../config/multerConfig");
 
+// 비동기 처리를 위한 함수
+const queryAsync = (sql, params) => {
+  return new Promise((resolve, reject) => {
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(result);
+    });
+  });
+};
+
 /**
  * @swagger
  * /api/board/posts:
@@ -123,23 +135,93 @@ router.get("/posts", (req, res) => {
  *       schema:
  *          type: integer
  *     responses:
- *       200:
- *         description: OK
+ *      200:
+ *        description: Successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                code:
+ *                  type: integer
+ *                data:
+ *                  type: object
+ *                msg:
+ *                  type: string
+ *      400:
+ *        description: Bad Request
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
  */
-router.get("/posts/:board_id", (req, res) => {
+router.get("/posts/:board_id", async (req, res) => {
   const board_id = req.params.board_id;
-  const sqlQuery = "SELECT * FROM board WHERE board_id = ?";
-  db.query(sqlQuery, [board_id], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send(err);
-    } else {
-      if (results.length === 0) {
-        return res.status(404).send("No data found");
-      }
-      res.json(results);
+  const getPostQuery = "SELECT * FROM board WHERE board_id = ?";
+  const incrementViewsQuery =
+    "UPDATE board SET views = views + 1 WHERE board_id = ?";
+
+  // if (!board_id) {
+  //   return res.status(400).json({ code: 400, msg: "Bad Request: Missing id" });
+  // }
+  // queryAsync(incrementViewsQuery, [board_id])
+  //   .then((result) => {
+  //     if (result.affectedRows === 0) {
+  //       return res
+  //         .status(404)
+  //         .json({ code: 404, msg: "Not Found: No post with the given id" });
+  //     }
+  //     const post = queryAsync(getPostQuery, [board_id]);
+  //     if (post.length === 0) {
+  //       return res
+  //         .status(404)
+  //         .json({ code: 404, msg: "Not Found: No post with the given id" });
+  //     }
+  //     return res.status(200).json({ code: 200, data: post });
+  //   })
+  //   .catch((err) => {
+  //     console.error(err);
+  //     return res.status(500).json({ code: 500, msg: "Server Error" });
+  //   });
+
+  try {
+    if (!board_id) {
+      return res
+        .status(400)
+        .json({ code: 400, msg: "Bad Request: Missing id" });
     }
-  });
+    // 조회수 증가
+    const incrementResult = await queryAsync(incrementViewsQuery, [board_id]);
+    if (incrementResult.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ code: 404, msg: "Not Found: No post with the given id" });
+    }
+
+    // 게시물 상세 정보 조회
+    const post = await queryAsync(getPostQuery, [board_id]);
+    if (post.length === 0) {
+      return res
+        .status(404)
+        .json({ code: 404, msg: "Not Found: No post with the given id" });
+    }
+    //response.data.data[0] = [{board_id: 0, title: "hi"}]
+    res.status(200).json({ code: 200, data: post });
+  } catch (error) {
+    console.error(err);
+    res.status(500).json({ code: 500, msg: "Server Error" });
+  }
+  // db.query(sqlQuery, [board_id], (err, results) => {
+  //   if (err) {
+  //     console.error(err);
+  //     return res.status(500).send(err);
+  //   } else {
+  //     if (results.length === 0) {
+  //       return res.status(404).send("No data found");
+  //     }
+  //     res.json(results);
+  //   }
+  // });
 
   console.log("Request received");
 });
@@ -192,19 +274,23 @@ router.patch("/posts", (req, res) => {
 
 /**
  * @swagger
- * /api/board/posts/{board_id}:
+ * /api/board/posts:
  *   delete:
  *     summary: 게시물 데이터 삭제
  *     tags:
  *     - Board API
  *     description: board_id에 해당하는 게시물의 데이터를 삭제합니다(논리적 삭제)
- *     parameters:
- *     - name: board_id
- *       in: path
- *       description: 게시물 ID
+ *     requestBody:
  *       required: true
- *       schema:
- *         type: integer
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               board_ids:
+ *                 type: array
+ *                 items:
+ *                  type: integer
  *     responses:
  *      200:
  *        description: Successfully
@@ -215,8 +301,6 @@ router.patch("/posts", (req, res) => {
  *              properties:
  *                code:
  *                  type: integer
- *                data:
- *                  type: object
  *                msg:
  *                  type: string
  *      400:
@@ -226,28 +310,47 @@ router.patch("/posts", (req, res) => {
  *      500:
  *        description: Server Error
  */
-router.delete("/posts/:board_id", (req, res) => {
-  const board_id = req.params.board_id;
+router.delete("/posts", async (req, res) => {
+  // 여러 게시물 한 번에 삭제할 수 있도록 수정 20241204 kwc
+  const { board_ids } = req.body;
+  console.log(board_ids);
 
-  if (!board_id) {
-    return res.status(400).json({ code: 400, msg: "Bad Request: Missing id" });
+  if (!board_ids || !Array.isArray(board_ids) || board_ids.length === 0) {
+    return res.status(400).json({
+      code: 400,
+      msg: "Bad Request: board_ids is required and should be an array",
+    });
   }
 
-  const sqlQuery = "UPDATE board SET is_deleted = true WHERE board_id = ?";
-  db.query(sqlQuery, [board_id], (err, result) => {
-    if (err) {
-      console.error("Error deleting post:", err);
-      return res.status(500).json({ code: 500, msg: "Server Error" });
-    }
+  try {
+    const sqlQuery = "UPDATE board SET is_deleted = true WHERE board_id IN (?)";
+    const result = queryAsync(sqlQuery, [board_ids]);
 
     if (result.affectedRows === 0) {
       return res
         .status(404)
-        .json({ code: 404, msg: "Not Found: No post with the given id" });
+        .json({ code: 404, msg: "Not Found: No posts with the given ids" });
     }
 
     res.status(200).json({ code: 200, msg: "Successfully deleted" });
-  });
+  } catch (error) {
+    console.error("Error deleting post:", err);
+    return res.status(500).json({ code: 500, msg: "Server Error" });
+  }
+  // db.query(sqlQuery, [board_id], (err, result) => { 기존 코드
+  //   if (err) {
+  //     console.error("Error deleting post:", err);
+  //     return res.status(500).json({ code: 500, msg: "Server Error" });
+  //   }
+
+  //   if (result.affectedRows === 0) {
+  //     return res
+  //       .status(404)
+  //       .json({ code: 404, msg: "Not Found: No post with the given id" });
+  //   }
+
+  //   res.status(200).json({ code: 200, msg: "Successfully deleted" });
+  // });
 });
 
 /**

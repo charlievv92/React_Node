@@ -1,7 +1,7 @@
 import "./App.css";
 import { AuthProvider } from "./auth/AuthContext";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Board from "./pages/Board";
+import BoardLayout from "./pages/BoardLayout";
 import MainGrid from "./dashboard/components/MainGrid";
 import Mypage from "./pages/Mypage";
 import BoardWrite from "./pages/BoardWrite";
@@ -22,7 +22,7 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Board />}>
+            <Route path="/" element={<BoardLayout />}>
               <Route path="/" element={<MainGrid />}></Route>
               <Route
                 path="/mypage"
@@ -65,9 +65,12 @@ function App() {
             />
             <Route path="/signup" element={<Signup />} />
 
-            <Route path="/admin" element={<AdminLayout/>}>
+            <Route path="/admin" element={<AdminLayout />}>
               <Route path="/admin/users" element={<AdminUserList />}></Route>
-              <Route path="/admin/articles" element={<AdminBoardList />}></Route>
+              <Route
+                path="/admin/articles"
+                element={<AdminBoardList />}
+              ></Route>
             </Route>
           </Routes>
         </BrowserRouter>
