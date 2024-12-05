@@ -64,8 +64,101 @@ router.post('/adminadd', async  (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/userList:
+ *   get:
+ *     summary: 유저목록 반환(관리자 제외)
+ *     description: 가입된 유저 목록을 반환합니다. (관리자 제외)
+ *     tags: 
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 성공적으로 유저 목록 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   email:
+ *                     type: string
+ *                     example: user@example.com
+ *                   user_name:
+ *                     type: string
+ *                     example: 홍길동
+ *                   date_of_joining:
+ *                     type: string
+ *                     format: date
+ *                     example: 2023-12-01
+ *                   auth_code:
+ *                     type: string
+ *                     example: T0
+ *                   is_deleted:
+ *                     type: boolean
+ *                     example: false
+ *       401:
+ *         description: 인증 실패
+ *       500:
+ *         description: 서버 오류
+ */
+router.get('/userList' ,(req, res) => {
 
+  const sqlQuery = `SELECT email, user_name, date_of_joining, auth_code, is_deleted FROM user WHERE auth_code!='A0'`;
+  db.query(sqlQuery, (err, result) => {
+    if (err) {
+      console.log(err.message);
+      return res.status(500).send(err);
+    } else {
+      res.json(result);
+    }
+  });
 
+});
+
+router.post('/userUpdateByAdmin' ,(req, res) => {
+  
+  const { action, selectedUsers } = req.body;
+  
+  if (!action || !selectedUsers || selectedUsers.length === 0) {
+    return res.status(400).json({ message: "action 또는 selectedUsers가 누락되었습니다." });
+  }
+
+  var sqlQuery ='';
+
+  switch (action) {
+    case "delete":
+      sqlQuery = `UPDATE user SET is_deleted = 1 WHERE email IN (?)`;
+      queryValues = [selectedUsers];
+      break;
+
+    case "restore":
+      sqlQuery = `UPDATE user SET is_deleted = 0 WHERE email IN (?)`;
+      queryValues = [selectedUsers];
+      break;
+
+    case "updateAuth":
+      // 권한 변경 (예: 모든 선택된 사용자의 권한을 'T1'로 변경)
+      sqlQuery = `UPDATE user SET auth_code = 'T1' WHERE email IN (?)`;
+      queryValues = [selectedUsers];
+      break;
+
+    default:
+      return res.status(400).json({ message: "유효하지 않은 action입니다." });
+  }
+
+  db.query(sqlQuery, queryValues, (err, result) => {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).json({ message: "데이터베이스 오류", error: err.message });
+    }
+    res.status(200).json({ message: "업데이트 성공", affectedRows: result.affectedRows });
+  });
+
+});
 
 /**
  * @swagger
@@ -122,10 +215,8 @@ router.post('/login', (req, res, next) => {
       if (err) {
         return res.status(500).send('세션 생성 실패');
       }
-
-
       res.status(200).json({
-        message: '로그인 성공',
+        message: "로그인 성공",
         user: {
           email: user.email,
           userName: user.user_name,

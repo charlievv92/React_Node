@@ -14,6 +14,11 @@ const PORT = process.env.port || 8000;
 const passport = require("./config/passport");
 const authRouter = require("./routes/authRouter");
 const boardRouter = require("./routes/boardRouter");
+const http = require("http");
+const { initializeSocket, getIO } = require("./config/socket");
+const server = http.createServer(app);
+
+
 
 // 정적 파일 사용
 app.use(express.static(path.join(__dirname, "/public")));
@@ -45,7 +50,7 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: false, // HTTPS가 아니므로 false
-      sameSite: "lax",
+      sameSite: "None",
       maxAge: 1 * 60 * 60 * 1000, // 1시간(ms)
     },
   })
@@ -53,15 +58,27 @@ app.use(
 
 //세션이나 쿠키가 존재 할경우 요청이 있을때 쿠키 지속시간을 갱신합니다.
 app.use((req, res, next) => {
-  if (req.session && req.cookies["connect.sid"]) {
+  console.log("Cookies:", req.cookies);
+  console.log("Session:", req.session);
+  if (req.session || req.cookies["connect.sid"]) {
     // 쿠키 리프레쉬
     res.cookie("connect.sid", req.cookies["connect.sid"], {
       httpOnly: true,
       secure: false, // HTTPS 사용 시 true
-      sameSite: "lax",
+      sameSite: "None",
       maxAge: 1 * 60 * 60 * 1000, // 1시간(ms)
     });
     console.log("쿠키 만료 시간이 갱신되었습니다.");
+
+  } else {
+    // 세션이 없는 경우 처리
+    const io = getIO();
+
+    if (!req.cookies["connect.sid"]) {
+      io.emit("session-expired");
+      console.log("세션 만료 알림");
+    }
+    
   }
   next();
 });
@@ -82,7 +99,8 @@ app.get("/", (req, res) => {
   console.log("Request received");
 });
 
-app.listen(PORT, () => {
+initializeSocket(server);
+server.listen(PORT, () => {
   console.log(`running on port ${PORT}`);
   // 서버 실행 후 명세서를 확인할 수 있는 URL
   console.log("Swagger docs available at http://localhost:8000/api-docs");

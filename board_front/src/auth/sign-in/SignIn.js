@@ -20,6 +20,9 @@ import AppTheme from "../../shared-theme/AppTheme";
 import ColorModeSelect from "../../shared-theme/ColorModeSelect";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext";
+import io from "socket.io-client";
+
+const socket = io(process.env.REACT_APP_SERVER_URL);
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -114,6 +117,8 @@ export default function SignIn(props) {
 
         //Context상태 Set
         setUser(responseData.user);
+
+        socket.emit("user-login", responseData.user.email);
 
         const from = location.state?.from?.pathname || "/"; // 이전 페이지 정보
         navigate(from); // 이전 페이지로 이동
