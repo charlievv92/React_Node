@@ -205,7 +205,7 @@ router.get("/posts/:board_id", async (req, res) => {
         .status(404)
         .json({ code: 404, msg: "Not Found: No post with the given id" });
     }
-
+    //response.data.data[0] = [{board_id: 0, title: "hi"}]
     res.status(200).json({ code: 200, data: post });
   } catch (error) {
     console.error(err);
