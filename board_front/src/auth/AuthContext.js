@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import io from "socket.io-client";
+import { useLocation } from "react-router-dom";
+
 /*
  * 로그인상태를 전역에서 상태로 사용하기위한 컴포넌트임
  * context를사용해 관리
@@ -21,8 +23,10 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [clientIp, setClientIp] = useState("");
+  const location = useLocation();
 
   useEffect(() => {
+    let isMounted = true;
     const fetchStatusAndIp = async () => {
       try {
         const [statusResponse, ipResponse] = await Promise.all([
@@ -30,11 +34,13 @@ export const AuthProvider = ({ children }) => {
           fetch(`${process.env.REACT_APP_SERVER_URL}/api/auth/ip`),
         ]);
 
+        if (!isMounted) return;
+
         const statusData = await statusResponse.json();
         const ipData = await ipResponse.json();
 
         if (statusData.user) {
-          setUser(statusData.user);
+          setUser((prevUser) => (prevUser ? prevUser : statusData.user));
           socket.emit("user-login", statusData.user.email);
         } else {
           setUser(null);
@@ -49,12 +55,15 @@ export const AuthProvider = ({ children }) => {
 
     fetchStatusAndIp();
 
-  }, []);
+    return () => {
+      isMounted = false; // 컴포넌트 언마운트 시 요청 중단
+    };
+  }, [location]);
 
   useEffect(() => {
   // 세션 만료 이벤트
   socket.on("session-expired", () => {
-    console.log("서버에서 세션 만료 알림을 받음");
+    console.log("Context setUser null");
     setUser(null);
   });
 

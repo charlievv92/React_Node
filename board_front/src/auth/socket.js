@@ -1,14 +1,18 @@
 import { io } from "socket.io-client";
 
 const socket = io(process.env.REACT_APP_SERVER_URL, {
-  withCredentials: true, // 쿠키 포함
-  extraHeaders: {
-    "Access-Control-Allow-Credentials": "true",
-  },
+  autoConnect: false,
+  withCredentials: true,
+  transports: ["websocket"],
+ 
 });
+
+if (!socket.connected) {
+  socket.connect();
+}
+
 socket.on("connect", () => {
   console.log("소켓 연결 성공:", socket.id);
-
 });
 
 
