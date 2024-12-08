@@ -50,7 +50,7 @@ export default function BoardWrite() {
         .then((response) => {
           // data = response.data;
           console.log("data : ", response.data);
-          setData(response.data[0]);
+          setData(response.data.data[0]);
           //  setTitle(data.title);
           //  setContents(data.contents);
           //  setAuthorEmail(data.email);

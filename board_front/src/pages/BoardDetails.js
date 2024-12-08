@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import {
   Button,
   CircularProgress,
+  Divider,
   List,
   Stack,
   TextField,
@@ -305,15 +306,22 @@ export default function BoardDetails() {
       <Grid size={{ xs: 12, sm: 3 }}>
         <Box
           sx={{
-            // mb: 2,
-            pt: 3,
-            pb: 2,
+            padding: 3,
+            width: { xs: "100%", sm: "100%" }, // 반응형 너비 설정
+            height: { xs: "auto", sm: "85vh" },
+            position: { sm: "sticky" },
+            top: { sm: 0 }, // sticky 위치 설정
+            backgroundColor: "background.paper",
+            overflowY: "auto",
+            // border: "2px solid #ccc",
           }}
         >
           <Typography component="h2" variant="h6" sx={{ pb: 2 }}>
             댓글
           </Typography>
-          {comments.length !== 0 && <AlignItemsList items={comments} />}
+          <Divider />
+          <AlignItemsList items={comments} />
+          {/* {comments.length !== 0 && <AlignItemsList items={comments} />} */}
 
           {/* {comments.map((comment) => (
             <Box
