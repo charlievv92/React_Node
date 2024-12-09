@@ -307,7 +307,9 @@ export default function BoardDetails() {
         <Box
           sx={{
             padding: 3,
-            width: { xs: "100%", sm: "100%" }, // 반응형 너비 설정
+            width: { xs: "100%", sm: "100%" },
+            minWidth: 320, // 반응형 너비 설정
+            maxWidth: 400, // 반응형 너비 설정
             height: { xs: "auto", sm: "85vh" },
             position: { sm: "sticky" },
             top: { sm: 0 }, // sticky 위치 설정
@@ -320,7 +322,7 @@ export default function BoardDetails() {
             댓글
           </Typography>
           <Divider />
-          <AlignItemsList items={comments} />
+          <AlignItemsList items={comments} user={user} />
           {/* {comments.length !== 0 && <AlignItemsList items={comments} />} */}
 
           {/* {comments.map((comment) => (

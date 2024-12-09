@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function CustomizedDataGrid({ rows }) {
   const navigate = useNavigate();
+  const filteredRows = rows.filter((row) => row.is_deleted === 0);
 
   const handleRowClick = (params) => {
     console.log(params.row);
@@ -15,8 +16,8 @@ export default function CustomizedDataGrid({ rows }) {
     <DataGrid
       autoHeight
       checkboxSelection
-      rows={rows}
-      getRowId={(rows) => rows.board_id}
+      rows={filteredRows}
+      getRowId={(filteredRows) => filteredRows.board_id}
       columns={columns}
       getRowClassName={(params) =>
         params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"

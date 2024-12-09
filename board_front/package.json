@@ -18,6 +18,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",

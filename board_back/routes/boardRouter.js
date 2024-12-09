@@ -102,7 +102,7 @@ router.post("/posts", (req, res) => {
  */
 router.get("/posts", (req, res) => {
   const sqlQuery =
-    "SELECT board_id, title, views, publish_date, email FROM board ORDER BY publish_date DESC";
+    "SELECT board_id, title, views, publish_date, email, is_deleted FROM board ORDER BY publish_date DESC";
   db.query(sqlQuery, (err, results) => {
     if (err) {
       console.error(err);
@@ -442,6 +442,52 @@ router.get("/comments/:board_id", (req, res) => {
     }
   });
 
+  console.log("Request received");
+});
+
+/**
+ * @swagger
+ * /api/board/comments:
+ *   patch:
+ *     summary: 게시물 댓글 수정
+ *     tags:
+ *     - Board API
+ *     description: 특정 게시물의 댓글을 수정합니다
+ *     produces:
+ *     - application/json
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               board_id:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.patch("/comments", (req, res) => {
+  const title = req.body.title;
+  const contents = req.body.contents;
+  const board_id = req.body.board_id;
+
+  const sqlQuery =
+    "UPDATE board SET title = ?, contents = ?, update_date = ? WHERE board_id = ?";
+  // "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  db.query(sqlQuery, [title, contents, new Date(), board_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    } else {
+      res.send("Success!!");
+    }
+  });
   console.log("Request received");
 });
 
