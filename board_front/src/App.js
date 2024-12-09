@@ -19,8 +19,8 @@ function App() {
   // TODO: 게시물 리스트 url에 params로 페이지 번호, 검색어 받아오는 기능 추가(20241121 kwc)
   return (
     <div>
+      <AuthProvider>
         <BrowserRouter>
-         <AuthProvider>
           <Routes>
             <Route path="/" element={<Board />}>
               <Route path="/" element={<MainGrid />}></Route>
@@ -70,8 +70,8 @@ function App() {
               <Route path="/admin/articles" element={<AdminBoardList />}></Route>
             </Route>
           </Routes>
-         </AuthProvider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </AuthProvider>
     </div>
   );
 }

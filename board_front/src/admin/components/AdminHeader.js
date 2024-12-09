@@ -6,13 +6,15 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-const navItems = ['유저목록', '게시글', '관리자모드 종료'];
+const navItems = [
+  { id: 1, name:'유저목록', routePath:'/admin/users'}, 
+  { id: 2, name:'게시글', routePath:'/admin/articles'}, 
+  { id: 3, name:'관리자모드 종료', routePath:'/'}
+];
 
 function DrawerAppBar({ $onSelectMenu }) {
-
-  const navigate = useNavigate();
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -36,15 +38,12 @@ function DrawerAppBar({ $onSelectMenu }) {
           <Box sx={{ display: { xs: 'none', sm: 'block' }, mx:5 }}>{/* mx: 좌측여백 mr은우측 */}
             {navItems.map((item) => (
               <Button 
-                key={item} 
+                key={item.id} 
                 sx={{ color: '#fff' , mx:1}}
-                onClick={() =>
-                  item === '관리자모드 종료'
-                    ? navigate('/') // 메인 페이지로 이동
-                    : $onSelectMenu(item) // 선택 메뉴 상태 변경
-                }
+                onClick={() =>$onSelectMenu(item.name)} // 선택 메뉴 상태 변경
+                component={Link} to={item.routePath}
               >
-                {item}
+                {item.name}
               </Button>
             ))}
           </Box>

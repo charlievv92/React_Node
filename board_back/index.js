@@ -59,6 +59,10 @@ app.use(
 //세션이나 쿠키가 존재 할경우 요청이 있을때 쿠키 지속시간을 갱신합니다.
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.originalUrl}`);
+  const io = getIO();
+  const connectedSockets = Array.from(io.sockets.sockets.keys()); // 연결된 소켓 ID 목록
+  console.log("Connected Sockets:", connectedSockets);
+  console.log("User-Socket Map:", userSocketMap);
   if (req.originalUrl.startsWith('/api/auth/status')){
     // 쿠키 리프레쉬
     if (req.session?.passport?.user) {
@@ -76,7 +80,7 @@ app.use((req, res, next) => {
 
     } else {
       // 세션이 없는 경우 처리
-      const io = getIO();
+      
       console.log("세션이없삼");
       if (!(req.cookies["connect.sid"])) {
         io.emit("session-expired");

@@ -7,7 +7,7 @@ import { Outlet } from 'react-router-dom';
 
 export default function AdminLayout() {
 
-  const [selectedMenu, setSelectedMenu] = useState('유저목록');
+  const [selectedMenu, setSelectedMenu] = useState("");
   const [pageTitle, setPageTitle] = useState("");
   // //TODO:react-router 사용할것
   // const renderContent = () => {

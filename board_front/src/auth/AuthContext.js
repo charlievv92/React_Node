@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import io from "socket.io-client";
-import { useLocation } from "react-router-dom";
 
 /*
  * 로그인상태를 전역에서 상태로 사용하기위한 컴포넌트임
@@ -23,7 +22,6 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [clientIp, setClientIp] = useState("");
-  const location = useLocation();
 
   useEffect(() => {
     let isMounted = true;
@@ -58,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       isMounted = false; // 컴포넌트 언마운트 시 요청 중단
     };
-  }, [location]);
+  }, []);
 
   useEffect(() => {
   // 세션 만료 이벤트
