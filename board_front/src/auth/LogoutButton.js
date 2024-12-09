@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import io from "socket.io-client";
+import { disconnectSocket, initializeSocket } from "./socket";
 
 const LogoutButton = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
-  const socket = io(process.env.REACT_APP_SERVER_URL);
+
   const handleLogout = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/auth/logout`, {
@@ -14,7 +14,9 @@ const LogoutButton = () => {
       });
 
       if (response.ok) {
-        socket.disconnect();
+        const socket = initializeSocket();
+        socket.emit("user-logout");
+        disconnectSocket();
         setUser(null);
         console.log('로그아웃 성공');
         navigate('/'); // 로그아웃 후 메인 페이지로 이동

@@ -60,9 +60,7 @@ app.use(
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.originalUrl}`);
   const io = getIO();
-  const connectedSockets = Array.from(io.sockets.sockets.keys()); // 연결된 소켓 ID 목록
-  console.log("Connected Sockets:", connectedSockets);
-  console.log("User-Socket Map:", userSocketMap);
+
   if (req.originalUrl.startsWith('/api/auth/status')){
     // 쿠키 리프레쉬
     if (req.session?.passport?.user) {
@@ -81,14 +79,15 @@ app.use((req, res, next) => {
     } else {
       // 세션이 없는 경우 처리
       
-      console.log("세션이없삼");
+      console.log("세션이없음(비로그인)");
       if (!(req.cookies["connect.sid"])) {
         io.emit("session-expired");
-        console.log("Context setUser Null");
+        console.log("쿠키없음, Context setUser Null");
       }
       
     }
   }
+  
   next();
 });
 

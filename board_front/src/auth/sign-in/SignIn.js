@@ -20,9 +20,7 @@ import AppTheme from "../../shared-theme/AppTheme";
 import ColorModeSelect from "../../shared-theme/ColorModeSelect";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext";
-import io from "socket.io-client";
-
-const socket = io(process.env.REACT_APP_SERVER_URL);
+import { connectSocket, initializeSocket } from "../socket";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -112,12 +110,14 @@ export default function SignIn(props) {
       );
 
       if (response.ok) {
+        const socket = initializeSocket();
+        
         console.log("로그인 성공");
         const responseData = await response.json(); // JSON 응답 파싱
 
         //Context상태 Set
         setUser(responseData.user);
-
+        connectSocket(responseData.user.email)
         socket.emit("user-login", responseData.user.email);
 
         const from = location.state?.from?.pathname || "/"; // 이전 페이지 정보

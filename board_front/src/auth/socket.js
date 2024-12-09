@@ -1,22 +1,25 @@
-import { io } from "socket.io-client";
+import io from "socket.io-client";
 
-const socket = io(process.env.REACT_APP_SERVER_URL, {
-  autoConnect: false,
-  withCredentials: true,
-  transports: ["websocket"],
- 
-});
+let socket; // 전역 소켓 변수
 
-if (!socket.connected) {
-  socket.connect();
-}
+// 소켓 초기화 함수
+export const initializeSocket = () => {
+  if (!socket) {
+    socket = io(process.env.REACT_APP_SERVER_URL, { autoConnect: false });
+  }
+  return socket;
+};
 
-socket.on("connect", () => {
-  console.log("소켓 연결 성공:", socket.id);
-});
+export const connectSocket = (email) => {
+  socket.auth = { email }; // 인증 정보를 전달
+  if (!socket.connected) {
+    socket.connect(); // 소켓 연결
+  }
+};
 
-
-socket.on("disconnect", () => {
-  console.log("소켓 연결 끊김");
-});
-export default socket;
+export const disconnectSocket = () => {
+  if (socket) {
+    console.log('소켓제거');
+    socket.disconnect();
+  }
+};

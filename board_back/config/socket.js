@@ -13,15 +13,25 @@ const initializeSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`사용자 연결됨: ${socket.id}`);
-
 
     // 사용자 로그인 이벤트 처리
     socket.on("user-login", (email) => {
+      if (!email) {
+        console.error("email이 제공되지 않았습니다.");
+        return;
+      }
       userSocketMap[email] = socket.id; // 사용자 ID와 소켓 ID 매핑
       console.log(`사용자 ${email} 연결됨.`);
     });
-  
+
+    // 로그아웃 시 매핑 제거
+    socket.on("user-logout", (email) => {
+      if (userSocketMap[email] === socket.id) {
+        delete userSocketMap[email];
+        console.log(`사용자 ${email} 로그아웃 처리됨.`);
+      }
+    });
+
     // 연결 해제 시 매핑 제거
     socket.on("disconnect", () => {
       for (const [email, socketId] of Object.entries(userSocketMap)) {
