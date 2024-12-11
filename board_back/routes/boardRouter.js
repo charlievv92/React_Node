@@ -1,19 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../config/db");
+const {
+  queryAsync,
+  create,
+  read,
+  update,
+  remove,
+} = require("../utils/dbUtils");
 const upload = require("../config/multerConfig");
 
 // 비동기 처리를 위한 함수
-const queryAsync = (sql, params) => {
-  return new Promise((resolve, reject) => {
-    db.query(sql, params, (err, result) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(result);
-    });
-  });
-};
+// const queryAsync = (sql, params) => {
+//   return new Promise((resolve, reject) => {
+//     db.query(sql, params, (err, result) => {
+//       if (err) {
+//         return reject(err);
+//       }
+//       resolve(result);
+//     });
+//   });
+// };
 
 /**
  * @swagger
@@ -44,78 +50,168 @@ const queryAsync = (sql, params) => {
  *                 description: 작성자 IP 주소
  *     responses:
  *       200:
- *         description: OK
+ *        description: Successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                code:
+ *                  type: integer
+ *                data:
+ *                  type: object
+ *                msg:
+ *                  type: string
  *       400:
  *         description: Invalid input
  *       500:
  *         description: Server error
  */
-router.post("/posts", (req, res) => {
-  const title = req.body.title;
-  const contents = req.body.contents;
-  const email = req.body.writer;
-  const ip_location = req.body.ip_location;
+router.post("/posts", async (req, res) => {
+  // const title = req.body.title;
+  // const contents = req.body.contents;
+  // const email = req.body.writer;
+  // const ip_location = req.body.ip_location;
+  console.log("Request received");
+
+  const { title, contents, writer, ip_location } = req.body; //구조분해할당
 
   if (!title || !contents) {
-    return res
-      .status(400)
-      .send("Invalid input: Title and contents are required.");
+    return res.status(400).send({
+      code: 400,
+      message: "Invalid input: Title and contents are required.",
+    });
   }
 
-  if (!email || !ip_location) {
-    return res
-      .status(400)
-      .send("Invalid input: Email and IP location are required.");
+  if (!writer || !ip_location) {
+    return res.status(400).send({
+      code: 400,
+      message: "Invalid input: Email and IP location are required.",
+    });
   }
 
-  const sqlQuery =
-    "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
-  db.query(
-    sqlQuery,
-    [title, contents, 0, "맑음", new Date(), email, ip_location],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send(err);
-      } else {
-        res.send("Success!!");
-      }
-    }
-  );
-
-  console.log("Request received");
+  try {
+    await create("board", {
+      title,
+      contents,
+      views: 0,
+      weather: "맑음",
+      publish_date: new Date(),
+      email: writer,
+      ip_location,
+    });
+    res
+      .status(200)
+      .json({ code: 200, message: "게시물이 성공적으로 작성되었습니다" });
+  } catch (error) {
+    console.error(err);
+    res.status(500).json({ code: 500, msg: "Server Error" });
+  }
+  // const sqlQuery =
+  //   "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  // db.query(
+  //   sqlQuery,
+  //   [title, contents, 0, "맑음", new Date(), email, ip_location],
+  //   (err, result) => {
+  //     if (err) {
+  //       console.error(err);
+  //       return res.status(500).send(err);
+  //     } else {
+  //       res.send("Success!!");
+  //     }
+  //   }
+  // );
 });
 
 /**
  * @swagger
  * /api/board/posts:
  *   get:
- *     summary: 게시물 리스트 조회
+ *     summary: 게시물 목록 조회
  *     tags:
  *     - Board API
- *     description: 게시물 전체 리스트를 조회합니다
- *     produces:
- *     - application/json
+ *     description: 게시물 목록을 조회합니다
+ *     produces: application/json
  *     responses:
  *       200:
- *         description: OK
+ *         description: Successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       board_id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       contents:
+ *                         type: string
+ *                       views:
+ *                         type: integer
+ *                       is_deleted:
+ *                         type: boolean
+ *                       publish_date:
+ *                         type: string
+ *                         format: date-time
+ *                       email:
+ *                         type: string
+ *                       update_date:
+ *                         type: string
+ *                         format: date-time
+ *                 msg:
+ *                   type: string
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: Not Found
+ *       500:
+ *         description: Server error
  */
-router.get("/posts", (req, res) => {
-  const sqlQuery =
-    "SELECT board_id, title, views, publish_date, email, is_deleted FROM board ORDER BY publish_date DESC";
-  db.query(sqlQuery, (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send(err);
-    } else {
-      if (results.length === 0) {
-        return res.status(404).send("No data found");
-      }
-      res.json(results);
-    }
-  });
-
+router.get("/posts", async (req, res) => {
   console.log("Request received");
+  try {
+    const table = "board";
+    const columns = [
+      "board_id",
+      "title",
+      "views",
+      "publish_date",
+      "email",
+      "is_deleted",
+    ];
+    const conditions = { is_deleted: false };
+    const orderBy = "publish_date DESC";
+    const result = await read(table, columns, conditions, orderBy);
+
+    if (result.length === 0) {
+      return res.status(404).send("Not Found");
+    }
+    res.status(200).json({ code: 200, data: result, msg: "Successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Server Error");
+  }
+
+  // const sqlQuery =
+  //   "SELECT board_id, title, views, publish_date, email, is_deleted FROM board ORDER BY publish_date DESC";
+  // db.query(sqlQuery, (err, results) => {
+  //   if (err) {
+  //     console.error(err);
+  //     return res.status(500).send(err);
+  //   } else {
+  //     if (results.length === 0) {
+  //       return res.status(404).send("No data found");
+  //     }
+  //     res.json(results);
+  //   }
+  // });
 });
 
 /**
@@ -146,6 +242,25 @@ router.get("/posts", (req, res) => {
  *                  type: integer
  *                data:
  *                  type: object
+ *                  properties:
+ *                    board_id:
+ *                      type: integer
+ *                    title:
+ *                      type: string
+ *                    contents:
+ *                      type: string
+ *                    views:
+ *                      type: integer
+ *                    weather:
+ *                      type: string
+ *                    publish_date:
+ *                      type: string
+ *                    email:
+ *                      type: string
+ *                    ip_location:
+ *                      type: string
+ *                    update_date:
+ *                      type: string
  *                msg:
  *                  type: string
  *      400:
@@ -156,33 +271,12 @@ router.get("/posts", (req, res) => {
  *        description: Server Error
  */
 router.get("/posts/:board_id", async (req, res) => {
-  const board_id = req.params.board_id;
+  console.log("Request received");
+
+  const { board_id } = req.params;
   const getPostQuery = "SELECT * FROM board WHERE board_id = ?";
   const incrementViewsQuery =
     "UPDATE board SET views = views + 1 WHERE board_id = ?";
-
-  // if (!board_id) {
-  //   return res.status(400).json({ code: 400, msg: "Bad Request: Missing id" });
-  // }
-  // queryAsync(incrementViewsQuery, [board_id])
-  //   .then((result) => {
-  //     if (result.affectedRows === 0) {
-  //       return res
-  //         .status(404)
-  //         .json({ code: 404, msg: "Not Found: No post with the given id" });
-  //     }
-  //     const post = queryAsync(getPostQuery, [board_id]);
-  //     if (post.length === 0) {
-  //       return res
-  //         .status(404)
-  //         .json({ code: 404, msg: "Not Found: No post with the given id" });
-  //     }
-  //     return res.status(200).json({ code: 200, data: post });
-  //   })
-  //   .catch((err) => {
-  //     console.error(err);
-  //     return res.status(500).json({ code: 500, msg: "Server Error" });
-  //   });
 
   try {
     if (!board_id) {
@@ -222,8 +316,6 @@ router.get("/posts/:board_id", async (req, res) => {
   //     res.json(results);
   //   }
   // });
-
-  console.log("Request received");
 });
 
 /**
