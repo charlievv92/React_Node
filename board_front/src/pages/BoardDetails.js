@@ -310,7 +310,7 @@ export default function BoardDetails() {
             width: { xs: "100%", sm: "100%" },
             minWidth: 320, // 반응형 너비 설정
             maxWidth: 400, // 반응형 너비 설정
-            height: { xs: "auto", sm: "85vh" },
+            height: { xs: "auto", sm: "80vh" },
             position: { sm: "sticky" },
             top: { sm: 0 }, // sticky 위치 설정
             backgroundColor: "background.paper",

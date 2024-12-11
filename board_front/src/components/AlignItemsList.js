@@ -13,13 +13,15 @@ import { format } from "date-fns";
 
 export default function AlignItemsList({ items, user }) {
   const filteredItems = items.filter((item) => item.is_deleted === 0);
+  console.log("filteredItems", filteredItems);
+
   return (
     <List
       sx={{
         width: "100%",
         maxWidth: 400,
         bgcolor: "background.paper",
-        height: "95%",
+        height: "90%",
       }}
     >
       {filteredItems.length === 0 && (

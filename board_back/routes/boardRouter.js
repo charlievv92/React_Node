@@ -389,10 +389,10 @@ router.post("/comments", (req, res) => {
   const ip_location = req.body.ip_location;
 
   const sqlQuery =
-    "INSERT INTO comment (comment, email, board_id, publish_date, ip_location) VALUES (?, ?, ?, ?, ?)";
+    "INSERT INTO comment (comment, email, board_id, publish_date, ip_location, is_deleted) VALUES (?, ?, ?, ?, ?, ?)";
   db.query(
     sqlQuery,
-    [comment, writer, board_id, new Date(), ip_location],
+    [comment, writer, board_id, new Date(), ip_location, false],
     (err, result) => {
       if (err) {
         console.error(err);
