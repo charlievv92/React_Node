@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import CustomizedDataGrid from "../components/CustomizedDataGrid";
 import { Button, Stack } from "@mui/material";
 import { Link, useOutletContext } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
 export default function BoardList() {
   // TODO: 게시물 검색 기능 및 페이지네이션 관련 기능 추가(20241121 kwc)
@@ -16,6 +17,7 @@ export default function BoardList() {
   // TODO: 공지 게시물은 공지 배열에 날짜 순으로 추가(20241202 kwc)
   const { setPageTitle } = useOutletContext();
   const [boardList, setBoardList] = useState([]);
+  const { user, clientIp } = useAuth();
 
   useEffect(() => {
     setPageTitle("Board List");
@@ -50,6 +52,7 @@ export default function BoardList() {
         <Button component={Link} to={"/articles/write"}>
           게시물 작성
         </Button>
+        {/* {user && user.auth_code === "A0" && <Button onClick={}>삭제</Button>} */}
         {/* <Button disabled>Disabled</Button> */}
       </Stack>
       <Grid size={{ xs: 12, sm: 12 }}>

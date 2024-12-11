@@ -113,6 +113,8 @@ export const columns = [
     align: "center",
     flex: 1,
     minWidth: 120,
+    type: "datetime",
+    valueGetter: (value) => new Date(value).toLocaleString(), // 20241203 날짜 데이터 출력 형식 수정 kwc
   },
   // {
   //   field: "averageTime",

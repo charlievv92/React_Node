@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(
   cors({
     origin: "http://localhost:3000", // 클라이언트의 도메인
-    methods: "GET,POST,PUT,DELETE",
+    methods: "GET,POST,PUT,DELETE,PATCH",
     credentials: true,
   })
 );
