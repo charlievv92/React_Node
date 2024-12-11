@@ -18,8 +18,6 @@ const http = require("http");
 const { initializeSocket, getIO } = require("./config/socket");
 const server = http.createServer(app);
 
-
-
 // 정적 파일 사용
 app.use(express.static(path.join(__dirname, "/public")));
 
@@ -43,7 +41,7 @@ app.use(cookieParser());
 // 로그인 세션 설정
 app.use(
   session({
-    store: new RedisStore({ client: redisClient, ttl: 60 }), // Redis에 세션 저장 ttl은 세션만료시간(초) , disableTouch: true 하면 TTL갱신 비활성화. 혹은 쿠키도 같이 리프레쉬 할지 결정해야함
+    store: new RedisStore({ client: redisClient, ttl: 3600 }), // Redis에 세션 저장 ttl은 세션만료시간(초) , disableTouch: true 하면 TTL갱신 비활성화. 혹은 쿠키도 같이 리프레쉬 할지 결정해야함
     secret: process.env.SESSION_SECRET || "default-secret",
     resave: false, // 변경되지 않은 세션은 저장하지 않음
     saveUninitialized: false, // 초기화되지 않은 세션은 저장하지 않음
@@ -51,7 +49,7 @@ app.use(
       httpOnly: true,
       secure: false, // HTTPS가 아니므로 false
       sameSite: "lax",
-      maxAge: 1 * 1 * 60 * 1000, // 1시간(ms)
+      maxAge: 1 * 60 * 60 * 1000, // 1시간(ms)
     },
   })
 );
@@ -61,7 +59,7 @@ app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.originalUrl}`);
   const io = getIO();
 
-  if (req.originalUrl.startsWith('/api/auth/status')){
+  if (req.originalUrl.startsWith("/api/auth/status")) {
     // 쿠키 리프레쉬
     if (req.session?.passport?.user) {
       console.log("Session:", req.session);
@@ -71,23 +69,20 @@ app.use((req, res, next) => {
         httpOnly: true,
         secure: false, // HTTPS 사용 시 true
         sameSite: "lax",
-        maxAge: 1 * 1 * 60 * 1000, // 1시간(ms)
+        maxAge: 1 * 60 * 60 * 1000, // 1시간(ms)
       });
       console.log("쿠키 만료 시간이 갱신되었습니다.");
-      
-
     } else {
       // 세션이 없는 경우 처리
-      
+
       console.log("세션이없음(비로그인)");
-      if (!(req.cookies["connect.sid"])) {
+      if (!req.cookies["connect.sid"]) {
         io.emit("session-expired");
         console.log("쿠키없음, Context setUser Null");
       }
-      
     }
   }
-  
+
   next();
 });
 
