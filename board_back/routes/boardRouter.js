@@ -7,19 +7,14 @@ const {
   update,
   remove,
 } = require("../utils/dbUtils");
+const {
+  createResponse,
+  successResponse,
+  clientErrorResponse,
+  dataNotFoundErrorResponse,
+  serverErrorResponse,
+} = require("../utils/responseUtils");
 const upload = require("../config/multerConfig");
-
-// 비동기 처리를 위한 함수
-// const queryAsync = (sql, params) => {
-//   return new Promise((resolve, reject) => {
-//     db.query(sql, params, (err, result) => {
-//       if (err) {
-//         return reject(err);
-//       }
-//       resolve(result);
-//     });
-//   });
-// };
 
 /**
  * @swagger
@@ -64,48 +59,66 @@ const upload = require("../config/multerConfig");
  *                  type: string
  *       400:
  *         description: Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                 msg:
+ *                   type: string
  *       500:
  *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                 msg:
+ *                   type: string
  */
 router.post("/posts", async (req, res) => {
-  // const title = req.body.title;
-  // const contents = req.body.contents;
-  // const email = req.body.writer;
-  // const ip_location = req.body.ip_location;
   console.log("Request received");
 
   const { title, contents, writer, ip_location } = req.body; //구조분해할당
+  const table = "board";
+  const data = {
+    title,
+    contents,
+    views: 0,
+    weather: "맑음",
+    publish_date: new Date(),
+    email: writer,
+    ip_location,
+  };
 
   if (!title || !contents) {
-    return res.status(400).send({
-      code: 400,
-      message: "Invalid input: Title and contents are required.",
-    });
+    return res
+      .status(400)
+      .json(clientErrorResponse("제목과 내용을 입력해야 합니다."));
   }
 
   if (!writer || !ip_location) {
-    return res.status(400).send({
-      code: 400,
-      message: "Invalid input: Email and IP location are required.",
-    });
+    return res
+      .status(400)
+      .json(clientErrorResponse("이메일과 IP 주소를 입력해야 합니다."));
   }
 
   try {
-    await create("board", {
-      title,
-      contents,
-      views: 0,
-      weather: "맑음",
-      publish_date: new Date(),
-      email: writer,
-      ip_location,
-    });
+    await create(table, data);
     res
       .status(200)
-      .json({ code: 200, message: "게시물이 성공적으로 작성되었습니다" });
+      .json(successResponse({}, "게시물이 성공적으로 작성되었습니다"));
   } catch (error) {
     console.error(error);
-    res.status(500).json({ code: 500, msg: "Server Error" });
+    res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
   // const sqlQuery =
   //   "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -169,10 +182,43 @@ router.post("/posts", async (req, res) => {
  *                   type: string
  *       400:
  *         description: Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                 msg:
+ *                   type: string
  *       404:
- *         description: Not Found
+ *         description: Data not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                 msg:
+ *                   type: string
  *       500:
  *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                 msg:
+ *                   type: string
  */
 router.get("/posts", async (req, res) => {
   console.log("Request received");
@@ -185,18 +231,21 @@ router.get("/posts", async (req, res) => {
       "publish_date",
       "email",
       "is_deleted",
+      "update_date",
     ];
-    const conditions = { is_deleted: false, email: "aaa@aaa.com" };
+    const conditions = { is_deleted: false };
     const orderBy = "publish_date DESC";
     const result = await read(table, columns, conditions, orderBy);
 
     if (result.length === 0) {
-      return res.status(404).send("Not Found");
+      return res
+        .status(404)
+        .json(dataNotFoundErrorResponse("게시물이 없습니다."));
     }
-    res.status(200).json({ code: 200, data: result, msg: "Successfully" });
+    res.status(200).json(successResponse(result, "게시물 목록 조회 성공"));
   } catch (error) {
     console.log(error);
-    res.status(500).send("Server Error");
+    res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
 
   // const sqlQuery =
@@ -263,47 +312,79 @@ router.get("/posts", async (req, res) => {
  *                      type: string
  *                msg:
  *                  type: string
- *      400:
- *        description: Bad Request
- *      404:
- *        description: Not Found
- *      500:
- *        description: Server Error
+ *       400:
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                 msg:
+ *                   type: string
+ *       404:
+ *         description: Data not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                 msg:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                 msg:
+ *                   type: string
  */
 router.get("/posts/:board_id", async (req, res) => {
   console.log("Request received");
 
   const { board_id } = req.params;
-  const getPostQuery = "SELECT * FROM board WHERE board_id = ?";
-  const incrementViewsQuery =
-    "UPDATE board SET views = views + 1 WHERE board_id = ?";
+  const table = "board";
+  const columns = "*";
+  const data = { views: "views + 1" };
+  const conditions = { board_id };
 
   try {
     if (!board_id) {
-      return res
-        .status(400)
-        .json({ code: 400, msg: "Bad Request: Missing id" });
+      return res.status(400).json(clientErrorResponse("게시물 ID가 없습니다."));
     }
     // 조회수 증가
-    const incrementResult = await queryAsync(incrementViewsQuery, [board_id]);
+    const incrementResult = await update(table, data, conditions);
     if (incrementResult.affectedRows === 0) {
       return res
         .status(404)
-        .json({ code: 404, msg: "Not Found: No post with the given id" });
+        .json(dataNotFoundErrorResponse("해당 게시물이 없습니다."));
     }
 
     // 게시물 상세 정보 조회
-    const post = await queryAsync(getPostQuery, [board_id]);
+    const post = await read(table, columns, conditions);
     if (post.length === 0) {
       return res
         .status(404)
-        .json({ code: 404, msg: "Not Found: No post with the given id" });
+        .json(dataNotFoundErrorResponse("해당 게시물이 없습니다."));
     }
-    //response.data.data[0] = [{board_id: 0, title: "hi"}]
-    res.status(200).json({ code: 200, data: post });
+
+    res.status(200).json(successResponse(post[0], "게시물 상세 조회 성공"));
   } catch (error) {
-    console.error(err);
-    res.status(500).json({ code: 500, msg: "Server Error" });
+    console.error(error);
+    res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
   // db.query(sqlQuery, [board_id], (err, results) => {
   //   if (err) {
