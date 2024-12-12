@@ -104,7 +104,7 @@ router.post("/posts", async (req, res) => {
       .status(200)
       .json({ code: 200, message: "게시물이 성공적으로 작성되었습니다" });
   } catch (error) {
-    console.error(err);
+    console.error(error);
     res.status(500).json({ code: 500, msg: "Server Error" });
   }
   // const sqlQuery =
@@ -186,7 +186,7 @@ router.get("/posts", async (req, res) => {
       "email",
       "is_deleted",
     ];
-    const conditions = { is_deleted: false };
+    const conditions = { is_deleted: false, email: "aaa@aaa.com" };
     const orderBy = "publish_date DESC";
     const result = await read(table, columns, conditions, orderBy);
 

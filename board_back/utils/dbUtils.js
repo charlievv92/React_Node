@@ -34,16 +34,15 @@ const create = (table, data) => {
 };
 
 /**
- *
- * @param {*} table
+ * DBSELECT문
+ * @param {string} table aaasda
  * @param {*} columns
  * @param {*} conditions
  * @param {*} orderBy
- * @returns
+ * @returns {Promise<Object>} 조회 결과 객체. 프론트에서 const {code, data, message} = response.data; 형태로 사용하면 됨
  */
 const read = (table, columns = "*", conditions = {}, orderBy = "") => {
   const columnsClause = Array.isArray(columns) ? columns.join(", ") : columns;
-
   const whereClause = Object.keys(conditions)
     .map((key) => `${key} = ?`)
     .join(" AND ");
