@@ -25,17 +25,17 @@ const successResponse = (data, message = "Success") => {
 
 /**
  * 클라이언트 오류 응답 생성 함수
- * @param {string} [message="Invalid input"] - 응답 메시지
+ * @param {string} [message="Bad request"] - 응답 메시지
  * @param {*} [data={}] - 응답 데이터
  * @returns {{code: number, data: *, message: string}} 클라이언트 오류 응답 객체
  */
-const clientErrorResponse = (message = "Invalid input", data = {}) => {
+const clientErrorResponse = (message = "Bad request", data = {}) => {
   return createResponse(400, data, message);
 };
 
 /**
  * 클라이언트 오류 응답 생성 함수
- * @param {string} [message="Invalid input"] - 응답 메시지
+ * @param {string} [message="Data not found"] - 응답 메시지
  * @param {*} [data={}] - 응답 데이터
  * @returns {{code: number, data: *, message: string}} 클라이언트 오류 응답 객체
  */
