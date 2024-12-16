@@ -118,7 +118,10 @@ router.get('/userList' , async (req, res) => {
 
 });
 
-router.post('/userUpdateByAdmin' ,(req, res) => {
+
+
+
+router.post('/userUpdateByAdmin' , async (req, res) => {
   
   const { action, selectedUsers } = req.body;
   
@@ -127,36 +130,33 @@ router.post('/userUpdateByAdmin' ,(req, res) => {
   }
 
   var sqlQuery ='';
+  const queryValues = [selectedUsers];
 
   switch (action) {
     case "delete":
       sqlQuery = `UPDATE user SET is_deleted = 1 WHERE email IN (?)`;
-      queryValues = [selectedUsers];
       break;
 
     case "restore":
       sqlQuery = `UPDATE user SET is_deleted = 0 WHERE email IN (?)`;
-      queryValues = [selectedUsers];
       break;
 
     case "updateAuth":
       // 권한 변경 (예: 모든 선택된 사용자의 권한을 'T1'로 변경)
       sqlQuery = `UPDATE user SET auth_code = 'T1' WHERE email IN (?)`;
-      queryValues = [selectedUsers];
       break;
 
     default:
       return res.status(400).json({ message: "유효하지 않은 action입니다." });
   }
 
-  db.query(sqlQuery, queryValues, (err, result) => {
-    if (err) {
-      console.error(err.message);
-      return res.status(500).json({ message: "데이터베이스 오류", error: err.message });
-    }
-    res.status(200).json({ message: "업데이트 성공", affectedRows: result.affectedRows });
-  });
 
+  try{
+    await queryAsync(sqlQuery, queryValues);
+    res.status(200).json({ code: 200, message: '유저 정보 변경 성공'});
+  }catch(error){
+    res.status(500).json({ code: 500, message: '오류: 변경 실패' });
+  }
 });
 
 /**
@@ -231,7 +231,7 @@ router.post('/login', (req, res, next) => {
  * @swagger
  * /api/auth/logout:
  *   post:
- *     summary: 로그아웃 요천
+ *     summary: 로그아웃 요청
  *     description: 로그인된 사용자의 세션을 종료하고 쿠키를 삭제합니다.
  *     tags: 
  *       - Auth
@@ -312,19 +312,21 @@ router.get('/ip', (req, res) => {
  *       500:
  *         description: 서버 오류
  */
-router.post('/emailDuplicated', (req, res) => {
+router.post('/emailDuplicated', async (req, res) => {
+  const table = 'user';
+  const columns = 'email';
   const { email } = req.body;
-  const sqlQuery = 'SELECT * FROM user WHERE email = ?';
-
-  db.query(sqlQuery, [email], (err, result) => {
-    if (err) {
-      return res.status(500).send('Database error');
-    }
+  try{
+    const result = await read(table,columns,{email:email});
     if (result.length > 0) {
-      return res.status(401).send('중복된 이메일');
+      return res.status(401).json({code: 401, message: '중복된 이메일'});
     }
-    res.status(200).send('중복되지 않음');
-  });
+    res.status(200).json({ code: 200, message: '중복되지않음'});
+  }catch(err){
+
+    res.status(500).json({ code: 500, message: '오류: 변경 실패' });
+  }
+
 });
 
 

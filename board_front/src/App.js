@@ -69,7 +69,7 @@ function App() {
               <Route path="/admin/users" element={<AdminUserList />}></Route>
               <Route
                 path="/admin/articles"
-                element={<AdminBoardList />}
+                element={<BoardList />}
               ></Route>
             </Route>
           </Routes>
