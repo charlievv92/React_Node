@@ -24,9 +24,9 @@ export default function BoardList() {
   }, [setPageTitle]);
 
   const getBoardList = async () => {
-    const resp = await axios.get("http://localhost:8000/api/board/posts"); // 2) 게시글 목록 데이터에 할당
-    setBoardList(resp.data); // 3) boardList 변수에 할당
-    console.log(resp.data);
+    const response = await axios.get("http://localhost:8000/api/board/posts"); // 2) 게시글 목록 데이터에 할당
+    setBoardList(response.data.data); // 3) boardList 변수에 할당
+    console.log(response.data);
   };
 
   useEffect(() => {

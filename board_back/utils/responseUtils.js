@@ -3,7 +3,7 @@
  * @param {number} code - 응답 코드
  * @param {*} data - 응답 데이터
  * @param {string} message - 응답 메시지
- * @returns {{code: number, data: *, message: string}} 응답 객체
+ * @returns {{code: number, data: *, message: string}} 응답 객체. 프론트에서 const {code, data, message} = response.data; 형태로 사용하면 됨
  */
 const createResponse = (code, data, message) => {
   return {
