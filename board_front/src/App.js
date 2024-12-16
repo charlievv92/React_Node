@@ -13,7 +13,7 @@ import AdminLayout from "./admin/AdminLayout";
 import OnlyNotLoginRoute from "./routes/OnlyNotLoginRoute";
 import OnlyLoginRoute from "./routes/OnlyLoginRoute";
 import AdminUserList from "./admin/components/AdminUserList";
-import AdminBoardList from "./admin/components/AdminBoardList";
+
 
 function App() {
   // TODO: 게시물 리스트 url에 params로 페이지 번호, 검색어 받아오는 기능 추가(20241121 kwc)
@@ -67,10 +67,7 @@ function App() {
 
             <Route path="/admin" element={<AdminLayout />}>
               <Route path="/admin/users" element={<AdminUserList />}></Route>
-              <Route
-                path="/admin/articles"
-                element={<BoardList />}
-              ></Route>
+              <Route path="/admin/articles" element={<BoardList />}></Route>
             </Route>
           </Routes>
         </AuthProvider>

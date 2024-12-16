@@ -11,17 +11,13 @@ const { //db객체
   update,
   remove,
 } = require("../utils/dbUtils");
-
-//관리자 확인
-function isAdmin(req, res, next) {
-  if (req.isAuthenticated() && req.user.auth_code === 'SC') {
-    return next(); // 관리자 접근 허용
-  }
-  return res.status(403).json({ message: '권한 오류.' }); // 접근 차단
-}
-router.get('/admin', isAdmin, (req, res) => {
-  res.send('관리자 페이지접속');
-});
+const {
+  createResponse,
+  successResponse,
+  clientErrorResponse,
+  dataNotFoundErrorResponse,
+  serverErrorResponse,
+} = require("../utils/responseUtils");
 
 
 /**
