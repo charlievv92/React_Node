@@ -78,9 +78,9 @@ export default function BoardDetails() {
         `${serverUrl}/api/board/posts/${board_id}`
       );
       console.log("Article details : ", response.data);
-      setTitle(response.data.data[0].title || "");
-      setContents(response.data.data[0].contents || "");
-      setAuthorEmail(response.data.data[0].email || "");
+      setTitle(response.data.data.title || "");
+      setContents(response.data.data.contents || "");
+      setAuthorEmail(response.data.data.email || "");
 
       getArticleComments();
     } catch (error) {
@@ -99,7 +99,7 @@ export default function BoardDetails() {
         `${serverUrl}/api/board/comments/${board_id}`
       );
       console.log("Article comments : ", response.data);
-      setComments(response.data || []);
+      setComments(response.data.data || []);
     } catch (error) {
       console.error("Error getting article details!!! ", error);
     } finally {
