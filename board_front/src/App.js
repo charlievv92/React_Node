@@ -1,23 +1,77 @@
-import logo from "./logo.svg";
 import "./App.css";
+import { AuthProvider } from "./auth/AuthContext";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import BoardLayout from "./pages/BoardLayout";
+import MainGrid from "./dashboard/components/MainGrid";
+import Mypage from "./pages/Mypage";
+import BoardWrite from "./pages/BoardWrite";
+import BoardList from "./pages/BoardList";
+import BoardDetails from "./pages/BoardDetails";
+import SignIn from "./auth/sign-in/SignIn";
+import Signup from "./auth/sign-up/Signup";
+import AdminLayout from "./admin/AdminLayout";
+import OnlyNotLoginRoute from "./routes/OnlyNotLoginRoute";
+import OnlyLoginRoute from "./routes/OnlyLoginRoute";
+import AdminUserList from "./admin/components/AdminUserList";
+
 
 function App() {
+  // TODO: 게시물 리스트 url에 params로 페이지 번호, 검색어 받아오는 기능 추가(20241121 kwc)
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<BoardLayout />}>
+              <Route path="/" element={<MainGrid />}></Route>
+              <Route
+                path="/mypage"
+                element={
+                  <OnlyLoginRoute>
+                    <Mypage />
+                  </OnlyLoginRoute>
+                }
+              />
+              <Route path="/articles" element={<BoardList />}></Route>
+              <Route
+                path="/articles/write"
+                element={
+                  <OnlyLoginRoute>
+                    <BoardWrite />
+                  </OnlyLoginRoute>
+                }
+              />
+              <Route
+                path="/articles/:board_id"
+                element={<BoardDetails />}
+              ></Route>
+              <Route
+                path="/articles/modify/:board_id"
+                element={
+                  <OnlyLoginRoute>
+                    <BoardWrite />
+                  </OnlyLoginRoute>
+                }
+              ></Route>
+            </Route>
+
+            <Route
+              path="/login"
+              element={
+                <OnlyNotLoginRoute>
+                  <SignIn />
+                </OnlyNotLoginRoute>
+              }
+            />
+            <Route path="/signup" element={<Signup />} />
+
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="/admin/users" element={<AdminUserList />}></Route>
+              <Route path="/admin/articles" element={<BoardList />}></Route>
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
     </div>
   );
 }

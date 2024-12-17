@@ -1,0 +1,23 @@
+@media (max-width: 768px) {
+  .ql-tooltip {
+    left: 0 !important;
+    top: 0 !important;
+    transform: none !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .ql-tooltip {
+    left: 250px !important;
+    top: 0 !important;
+    transform: none !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .ql-tooltip {
+    left: 430px !important;
+    top: 0 !important;
+    transform: none !important;
+  }
+}
