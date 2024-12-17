@@ -1,25 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db');
 const passport = require('../config/passport');
 const bcrypt = require('bcrypt');
-const redisClient = require('../modules/redisClient');
 const saltRounds = 10; // 해싱 라운드: 높을수록 보안 강하지만 속도 저하 있음
 
-//관리자 확인
-function isAdmin(req, res, next) {
-  if (req.isAuthenticated() && req.user.auth_code === 'SC') {//TODO:이부분은 추후 협의된 관리자 코드로 변경
-    return next(); // 관리자 접근 허용
-  }
-  return res.status(403).json({ message: '권한 오류.' }); // 접근 차단
-}
+const { //db객체
+  queryAsync,
+  create,
+  read,
+  update,
+  remove,
+} = require("../utils/dbUtils");
+const {
+  createResponse,
+  successResponse,
+  clientErrorResponse,
+  dataNotFoundErrorResponse,
+  serverErrorResponse,
+} = require("../utils/responseUtils");
 
 
-router.get('/admin', isAdmin, (req, res) => {
-  res.send('관리자 페이지접속');
-});
-
-//관리자 계정 생성용, auth_code에 위에 관리자값 넣고 할것
 /**
  * @swagger
  * /api/auth/adminadd:
@@ -35,32 +35,29 @@ router.post('/adminadd', async  (req, res) => {
     const hashedPassword = await bcrypt.hash('123456', saltRounds);
 
     //date_of_joining은 현재시간 auth_code는 기본값으로 설정
-    const sqlQuery = `
-      INSERT INTO user (email, password, user_name, tel_number, address, address_detail, date_of_joining, auth_code)
-      VALUES ('ad123@te.st', ?, '어드민', 'TEST', 'TEST', 'TEST', '2001-01-01', 'A0')
-      `;
-
-    db.query(
-      sqlQuery,
-      [hashedPassword],
-      (err, result) => {
-        if (err) {
-          // 중복된 이메일 처리
-          if (err.code === 'ER_DUP_ENTRY') {
-            console.log('관리자 이미 있음');
-          }
-          // 기타 오류 처리
-          console.log(err.message);
-        }
-
-        // 성공 응답
-        console.log('관리자생성');
-      }
-    );
+    await create('user',{
+      email:'ad123@te.st',
+      password:hashedPassword,
+      user_name:'어드민',
+      tel_number:'TEST',
+      address:"TEST",
+      address_detail:"TEST",
+      date_of_joining:'2001-01-01',
+      auth_code:'SC'
+    });
+    res
+      .status(200)
+      .json({ code: 200, message: "관리자 생성됨" });
+    
   } catch (error) {
-    // 비동기 로직에서 발생한 에러 처리
-    console.error(error);
-    res.status(500).send('서버 오류: 비밀번호 암호화 실패');
+
+    if (error.code === 'ER_DUP_ENTRY') {
+      console.log('에러 : 관리자가 이미 등록되어있음.');
+      return res.status(400).json({ code: 400, message: '관리자가 이미 등록되어있음.' });
+    }
+
+    console.error('오류 : ', error);
+    res.status(500).json({ code: 500, message: '서버 오류: 관리자 생성 실패' });
   }
 });
 
@@ -105,21 +102,22 @@ router.post('/adminadd', async  (req, res) => {
  *       500:
  *         description: 서버 오류
  */
-router.get('/userList' ,(req, res) => {
+router.get('/userList' , async (req, res) => {
 
   const sqlQuery = `SELECT email, user_name, date_of_joining, auth_code, is_deleted FROM user WHERE auth_code!='A0'`;
-  db.query(sqlQuery, (err, result) => {
-    if (err) {
-      console.log(err.message);
-      return res.status(500).send(err);
-    } else {
-      res.json(result);
-    }
-  });
+  try{
+    const data = await queryAsync(sqlQuery,[]);
+    res.status(200).json({ code: 200, data: data });
+  }catch(error){
+    res.status(500).json({ code: 500, message: '서버 오류: 목록읽기 실패' });
+  }
 
 });
 
-router.post('/userUpdateByAdmin' ,(req, res) => {
+
+
+
+router.post('/userUpdateByAdmin' , async (req, res) => {
   
   const { action, selectedUsers } = req.body;
   
@@ -128,36 +126,33 @@ router.post('/userUpdateByAdmin' ,(req, res) => {
   }
 
   var sqlQuery ='';
+  const queryValues = [selectedUsers];
 
   switch (action) {
     case "delete":
       sqlQuery = `UPDATE user SET is_deleted = 1 WHERE email IN (?)`;
-      queryValues = [selectedUsers];
       break;
 
     case "restore":
       sqlQuery = `UPDATE user SET is_deleted = 0 WHERE email IN (?)`;
-      queryValues = [selectedUsers];
       break;
 
     case "updateAuth":
       // 권한 변경 (예: 모든 선택된 사용자의 권한을 'T1'로 변경)
       sqlQuery = `UPDATE user SET auth_code = 'T1' WHERE email IN (?)`;
-      queryValues = [selectedUsers];
       break;
 
     default:
       return res.status(400).json({ message: "유효하지 않은 action입니다." });
   }
 
-  db.query(sqlQuery, queryValues, (err, result) => {
-    if (err) {
-      console.error(err.message);
-      return res.status(500).json({ message: "데이터베이스 오류", error: err.message });
-    }
-    res.status(200).json({ message: "업데이트 성공", affectedRows: result.affectedRows });
-  });
 
+  try{
+    await queryAsync(sqlQuery, queryValues);
+    res.status(200).json({ code: 200, message: '유저 정보 변경 성공'});
+  }catch(error){
+    res.status(500).json({ code: 500, message: '오류: 변경 실패' });
+  }
 });
 
 /**
@@ -232,7 +227,7 @@ router.post('/login', (req, res, next) => {
  * @swagger
  * /api/auth/logout:
  *   post:
- *     summary: 로그아웃 요천
+ *     summary: 로그아웃 요청
  *     description: 로그인된 사용자의 세션을 종료하고 쿠키를 삭제합니다.
  *     tags: 
  *       - Auth
@@ -313,19 +308,24 @@ router.get('/ip', (req, res) => {
  *       500:
  *         description: 서버 오류
  */
-router.post('/emailDuplicated', (req, res) => {
-  const { email } = req.body;
-  const sqlQuery = 'SELECT * FROM user WHERE email = ?';
+router.post('/emailDuplicated', async (req, res) => {
 
-  db.query(sqlQuery, [email], (err, result) => {
-    if (err) {
-      return res.status(500).send('Database error');
-    }
+  const { email } = req.body;
+  const table = 'user';
+  const columns = 'email';
+  const conditions = { email };
+
+  try{
+    const result = await read(table,columns,conditions);
     if (result.length > 0) {
-      return res.status(401).send('중복된 이메일');
+      return res.status(401).json({code: 401, message: '중복된 이메일'});
     }
-    res.status(200).send('중복되지 않음');
-  });
+    res.status(200).json({ code: 200, message: '중복되지않음'});
+  }catch(err){
+    console.log(err);
+    res.status(500).json({ code: 500, message: '오류: 변경 실패' });
+  }
+
 });
 
 

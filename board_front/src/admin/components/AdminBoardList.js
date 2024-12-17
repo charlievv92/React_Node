@@ -21,8 +21,7 @@ export default function DataGridDemo() {
 
   const getUserList = async () => {
     const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/board/posts`);
-
-    const formatted = response.data.map((user, index) => ({
+    const formatted = response.data.data.map((user, index) => ({
       id: user.email,
       user_name: user.user_name,
       date_of_joining: user.date_of_joining,
