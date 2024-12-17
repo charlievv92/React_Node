@@ -309,17 +309,20 @@ router.get('/ip', (req, res) => {
  *         description: 서버 오류
  */
 router.post('/emailDuplicated', async (req, res) => {
+
+  const { email } = req.body;
   const table = 'user';
   const columns = 'email';
-  const { email } = req.body;
+  const conditions = { email };
+
   try{
-    const result = await read(table,columns,{email:email});
+    const result = await read(table,columns,conditions);
     if (result.length > 0) {
       return res.status(401).json({code: 401, message: '중복된 이메일'});
     }
     res.status(200).json({ code: 200, message: '중복되지않음'});
   }catch(err){
-
+    console.log(err);
     res.status(500).json({ code: 500, message: '오류: 변경 실패' });
   }
 
