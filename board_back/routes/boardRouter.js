@@ -120,20 +120,6 @@ router.post("/posts", async (req, res) => {
     console.error(error);
     res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
-  // const sqlQuery =
-  //   "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
-  // db.query(
-  //   sqlQuery,
-  //   [title, contents, 0, "맑음", new Date(), email, ip_location],
-  //   (err, result) => {
-  //     if (err) {
-  //       console.error(err);
-  //       return res.status(500).send(err);
-  //     } else {
-  //       res.send("Success!!");
-  //     }
-  //   }
-  // );
 });
 
 /**
@@ -222,21 +208,20 @@ router.post("/posts", async (req, res) => {
  */
 router.get("/posts", async (req, res) => {
   console.log("Request received");
+  const table = "board";
+  const columns = [
+    "board_id",
+    "title",
+    "views",
+    "publish_date",
+    "email",
+    "is_deleted",
+    "update_date",
+  ];
+  const conditions = { is_deleted: false };
+  const orderBy = "publish_date DESC";
   try {
-    const table = "board";
-    const columns = [
-      "board_id",
-      "title",
-      "views",
-      "publish_date",
-      "email",
-      "is_deleted",
-      "update_date",
-    ];
-    const conditions = { is_deleted: false };
-    const orderBy = "publish_date DESC";
     const result = await read(table, columns, conditions, orderBy);
-
     if (result.length === 0) {
       return res
         .status(404)
@@ -247,20 +232,6 @@ router.get("/posts", async (req, res) => {
     console.log(error);
     res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
-
-  // const sqlQuery =
-  //   "SELECT board_id, title, views, publish_date, email, is_deleted FROM board ORDER BY publish_date DESC";
-  // db.query(sqlQuery, (err, results) => {
-  //   if (err) {
-  //     console.error(err);
-  //     return res.status(500).send(err);
-  //   } else {
-  //     if (results.length === 0) {
-  //       return res.status(404).send("No data found");
-  //     }
-  //     res.json(results);
-  //   }
-  // });
 });
 
 /**
@@ -387,17 +358,6 @@ router.get("/posts/:board_id", async (req, res) => {
     console.error(error);
     res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
-  // db.query(sqlQuery, [board_id], (err, results) => {
-  //   if (err) {
-  //     console.error(err);
-  //     return res.status(500).send(err);
-  //   } else {
-  //     if (results.length === 0) {
-  //       return res.status(404).send("No data found");
-  //     }
-  //     res.json(results);
-  //   }
-  // });
 });
 
 /**
@@ -478,15 +438,9 @@ router.get("/posts/:board_id", async (req, res) => {
  *                   type: string
  */
 router.patch("/posts", async (req, res) => {
-  // const title = req.body.title;
-  // const contents = req.body.contents;
-  // const board_id = req.body.board_id;
   const { title, contents, board_id } = req.body;
 
   console.log("Request received");
-
-  // const sqlQuery =
-  //   "UPDATE board SET title = ?, contents = ?, update_date = ? WHERE board_id = ?";
 
   const table = "board";
   const data = { title, contents, update_date: new Date() };
@@ -516,14 +470,6 @@ router.patch("/posts", async (req, res) => {
     console.log(error);
     res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
-  // db.query(sqlQuery, [title, contents, new Date(), board_id], (err, result) => {
-  //   if (err) {
-  //     console.error(err);
-  //     return res.status(500).send(err);
-  //   } else {
-  //     res.send("Success!!");
-  //   }
-  // });
 });
 
 /**
@@ -609,8 +555,6 @@ router.delete("/posts", async (req, res) => {
   }
 
   try {
-    // const sqlQuery = "UPDATE board SET is_deleted = ? WHERE board_id IN (?)";
-    // const result = queryAsync(sqlQuery, [board_ids]);
     const table = "board";
     const data = { is_deleted: true };
     const conditions = { board_id: board_ids };
@@ -629,20 +573,6 @@ router.delete("/posts", async (req, res) => {
     console.error(error);
     return res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
-  // db.query(sqlQuery, [board_id], (err, result) => { 기존 코드
-  //   if (err) {
-  //     console.error("Error deleting post:", err);
-  //     return res.status(500).json({ code: 500, msg: "Server Error" });
-  //   }
-
-  //   if (result.affectedRows === 0) {
-  //     return res
-  //       .status(404)
-  //       .json({ code: 404, msg: "Not Found: No post with the given id" });
-  //   }
-
-  //   res.status(200).json({ code: 200, msg: "Successfully deleted" });
-  // });
 });
 
 /**
@@ -725,10 +655,6 @@ router.delete("/posts", async (req, res) => {
  *                   type: string
  */
 router.post("/comments", async (req, res) => {
-  // const board_id = req.body.board_id;
-  // const comment = req.body.comment;
-  // const writer = req.body.writer;
-  // const ip_location = req.body.ip_location;
   const { board_id, comment, writer, ip_location } = req.body;
   console.log("Request received");
   if (!board_id) {
@@ -751,14 +677,10 @@ router.post("/comments", async (req, res) => {
     return res.status(400).json(clientErrorResponse("댓글을 입력해주세요."));
   }
 
-  // const sqlQuery =
-  //   "INSERT INTO comment (comment, email, board_id, publish_date, ip_location, is_deleted) VALUES (?, ?, ?, ?, ?, ?)";
-
+  let table = "board";
+  const columns = "*";
+  const conditions = { board_id, is_deleted: false };
   try {
-    let table = "board";
-    const columns = "*";
-    const conditions = { board_id, is_deleted: false };
-
     // 게시물이 존재하는지 확인
     const articleExists = await read(table, columns, conditions);
     if (articleExists.length === 0) {
@@ -785,18 +707,6 @@ router.post("/comments", async (req, res) => {
     console.error(error);
     return res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
-  // db.query(
-  //   sqlQuery,
-  //   [comment, writer, board_id, new Date(), ip_location, false],
-  //   (err, result) => {
-  //     if (err) {
-  //       console.error(err);
-  //       return res.status(500).send(err);
-  //     } else {
-  //       res.send("Success!!");
-  //     }
-  //   }
-  // );
 });
 
 /**
@@ -893,19 +803,6 @@ router.get("/comments/:board_id", async (req, res) => {
     console.log(error);
     return res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
-  // const sqlQuery =
-  //   "SELECT * FROM comment WHERE board_id = ? ORDER BY publish_date DESC";
-  // db.query(sqlQuery, [board_id], (err, results) => {
-  //   if (err) {
-  //     console.error(err);
-  //     return res.status(500).send(err);
-  //   } else {
-  //     if (results.length === 0) {
-  //       return res.status(404).send("No data found");
-  //     }
-  //     res.json(results);
-  //   }
-  // });
 });
 
 /**
@@ -986,10 +883,6 @@ router.get("/comments/:board_id", async (req, res) => {
  *                   type: string
  */
 router.patch("/comments", async (req, res) => {
-  // const title = req.body.title;
-  // const contents = req.body.contents;
-  // const board_id = req.body.board_id;
-
   const { comment, board_id } = req.body;
   console.log("Request received");
 
@@ -1028,18 +921,6 @@ router.patch("/comments", async (req, res) => {
     console.log(error);
     return res.status(500).json(serverErrorResponse("서버 에러 발생"));
   }
-
-  // const sqlQuery =
-  //   "UPDATE board SET title = ?, contents = ?, update_date = ? WHERE board_id = ?";
-  // // "INSERT INTO board (title, contents, views, weather, publish_date, email, ip_location) VALUES (?, ?, ?, ?, ?, ?, ?)";
-  // db.query(sqlQuery, [title, contents, new Date(), board_id], (err, result) => {
-  //   if (err) {
-  //     console.error(err);
-  //     return res.status(500).send(err);
-  //   } else {
-  //     res.send("Success!!");
-  //   }
-  // });
 });
 
 /**

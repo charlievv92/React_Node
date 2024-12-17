@@ -147,7 +147,7 @@ export default function BoardDetails() {
         data: { board_ids: [board_id] },
       });
       console.log("Post deleted!!! ", response.data);
-      alert(response.data.msg);
+      alert(response.data.message);
       navigate("/articles");
     }
   };

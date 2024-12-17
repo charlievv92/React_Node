@@ -34,6 +34,19 @@ const clientErrorResponse = (message = "Bad request", data = {}) => {
 };
 
 /**
+ * 데이터 중복 오류 응답 생성 함수
+ * @param {string} [message="Data already exists"] - 응답 메시지
+ * @param {*} [data={}] - 응답 데이터
+ * @returns {{code: number, data: *, message: string}} 클라이언트 오류 응답 객체
+ */
+const dataAlreadyExistsErrorResponse = (
+  message = "Data already exists",
+  data = {}
+) => {
+  return createResponse(401, data, message);
+};
+
+/**
  * 클라이언트 오류 응답 생성 함수
  * @param {string} [message="Data not found"] - 응답 메시지
  * @param {*} [data={}] - 응답 데이터

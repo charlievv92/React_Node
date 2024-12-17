@@ -90,13 +90,14 @@ const update = (table, data, conditions) => {
   const whereClauses = [];
   const values = [...Object.values(data)];
 
-  // 조건이 배열인 경우 IN 연산자 사용하도록 수정
   Object.keys(conditions).forEach((key) => {
+    // 조건이 배열인 경우 IN 연산자 사용하도록 수정
     if (Array.isArray(conditions[key])) {
       const placeholders = conditions[key].map(() => "?").join(", ");
       whereClauses.push(`${key} IN (${placeholders})`);
       values.push(...conditions[key]);
     } else {
+      // 조건이 배열이 아닌 경우
       whereClauses.push(`${key} = ?`);
       values.push(conditions[key]);
     }
