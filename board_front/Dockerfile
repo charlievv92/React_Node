@@ -12,17 +12,20 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# 5. Nginx 이미지로 전환 (정적 파일 제공)
+# 5. 환경 변수 파일 삭제
+RUN rm -f .env
+
+# 6. Nginx 이미지로 전환 (정적 파일 제공)
 FROM nginx:alpine
 
-# 6. Nginx 설정 파일 복사
+# 7. Nginx 설정 파일 복사
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# 7. 빌드된 파일 복사
+# 8. 빌드된 파일 복사
 COPY --from=build /app/build /usr/share/nginx/html
 
-# 8. 포트 노출
+# 9. 포트 노출
 EXPOSE 80
 
-# 9. Nginx 실행
+# 10. Nginx 실행
 CMD ["nginx", "-g", "daemon off;"]
