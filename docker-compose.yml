@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./board_front
+    ports:
+      - "80:80"
+    env_file:
+      - ./board_front/.env
+    depends_on:
+      - backend
+
+  backend:
+    build: ./board_back
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./board_back/.env
+    volumes:
+      - ./board_back/public/uploads:/app/public/uploads
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mysql_data: 

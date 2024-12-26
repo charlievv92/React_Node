@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # 6. 포트 노출
-EXPOSE 3000
+EXPOSE 8000
 
 # 7. 애플리케이션 실행
 CMD ["npm", "start"]
