@@ -45,19 +45,17 @@ router.post('/adminadd', async  (req, res) => {
       date_of_joining:'2001-01-01',
       auth_code:'SC'
     });
-    res
-      .status(200)
-      .json({ code: 200, message: "관리자 생성됨" });
-    
+    res.json(successResponse('관리자 생성됨'));
+
   } catch (error) {
 
     if (error.code === 'ER_DUP_ENTRY') {
       console.log('에러 : 관리자가 이미 등록되어있음.');
-      return res.status(400).json({ code: 400, message: '관리자가 이미 등록되어있음.' });
+      return res.json(clientErrorResponse('관리자가 이미 등록되어있음.'));
     }
 
     console.error('오류 : ', error);
-    res.status(500).json({ code: 500, message: '서버 오류: 관리자 생성 실패' });
+    return res.json(serverErrorResponse('서버 오류: 관리자 생성 실패'));
   }
 });
 
@@ -104,6 +102,21 @@ router.post('/adminadd', async  (req, res) => {
  */
 router.get('/userList' , async (req, res) => {
 
+  const table = 'user';
+  const columns = ['email', 'user_name', 'date_of_joining', 'auth_code', 'is_deleted'];
+  const conditions = {auth_code: '!A0'};
+  //TODO: 아닐경우 조건식 오류로 현재 조회되지않음.?
+  try{
+    const data = await read(table,columns,conditions);
+    return res.json(successResponse(data));
+  }catch(error){
+    return res.json(serverErrorResponse('서버 오류: 목록읽기 실패'));
+  }
+
+});
+/*
+router.get('/userList' , async (req, res) => {
+
   const sqlQuery = `SELECT email, user_name, date_of_joining, auth_code, is_deleted FROM user WHERE auth_code!='A0'`;
   try{
     const data = await queryAsync(sqlQuery,[]);
@@ -113,7 +126,7 @@ router.get('/userList' , async (req, res) => {
   }
 
 });
-
+*/
 
 
 
@@ -122,36 +135,38 @@ router.post('/userUpdateByAdmin' , async (req, res) => {
   const { action, selectedUsers } = req.body;
   
   if (!action || !selectedUsers || selectedUsers.length === 0) {
-    return res.status(400).json({ message: "action 또는 selectedUsers가 누락되었습니다." });
+    return res.json(clientErrorResponse("action 또는 selectedUsers가 누락되었습니다."));
   }
 
-  var sqlQuery ='';
-  const queryValues = [selectedUsers];
+  const table = 'user';
+  var data = {};
+  const conditions = {email:selectedUsers};
 
   switch (action) {
     case "delete":
-      sqlQuery = `UPDATE user SET is_deleted = 1 WHERE email IN (?)`;
+      data= {is_deleted:1};
       break;
 
     case "restore":
-      sqlQuery = `UPDATE user SET is_deleted = 0 WHERE email IN (?)`;
+      data= {is_deleted:0};
       break;
 
     case "updateAuth":
       // 권한 변경 (예: 모든 선택된 사용자의 권한을 'T1'로 변경)
-      sqlQuery = `UPDATE user SET auth_code = 'T1' WHERE email IN (?)`;
+      // TODO: 값 넘겨와서 해당 권한으로 변경하는것 적용, 바로 아래 코드만 바꾸려는권한으로 바꿔주면됨 N0,등..
+      data= {auth_code:'T1'};
       break;
 
     default:
-      return res.status(400).json({ message: "유효하지 않은 action입니다." });
+      return res.json(clientErrorResponse("유효하지 않은 action입니다."));
   }
 
 
   try{
-    await queryAsync(sqlQuery, queryValues);
-    res.status(200).json({ code: 200, message: '유저 정보 변경 성공'});
+    await update(table, data, conditions);
+    return res.json(successResponse('유저 정보 변경 성공'));
   }catch(error){
-    res.status(500).json({ code: 500, message: '오류: 변경 실패' });
+    return res.json(serverErrorResponse('오류: 변경 실패'));
   }
 });
 
@@ -199,16 +214,16 @@ router.post('/login', (req, res, next) => {
   
   passport.authenticate('local', (err, user, info) => {
     if (err) {
-      return res.status(500).send('서버 오류: ' + err.message);
+      return res.json(serverErrorResponse('서버 오류: ' + err.message));
     }
     if (!user) {
-      return res.status(401).send(info.message || '이메일 또는 비밀번호가 일치하지 않습니다.');
+      return res.json(clientErrorResponse(info.message || '이메일 또는 비밀번호가 일치하지 않습니다.'));
     }
 
     // 세션 생성
     req.logIn(user, (err) => {
       if (err) {
-        return res.status(500).send('세션 생성 실패');
+        return res.json(serverErrorResponse('세션 생성 실패'));
       }
       res.status(200).json({
         message: "로그인 성공",
@@ -241,16 +256,16 @@ router.post('/logout', (req, res) => {
   // Passport 로그아웃 처리
   req.logout((err) => {
     if (err) {
-      return res.status(500).send('로그아웃 처리 실패');
+      return res.json(serverErrorResponse('로그아웃 처리 실패'));
     }
     // 세션 삭제
     req.session.destroy((err) => {
       if (err) {
-        return res.status(500).send('세션 삭제 실패');
+        return res.json(serverErrorResponse('세션 삭제 실패'));
       }
       // 클라이언트 쿠키 삭제
       res.clearCookie('connect.sid'); // 세션 쿠키 이름과 동일해야 함
-      res.status(200).send('로그아웃 성공');
+      return res.json(successResponse('로그아웃 성공'));
     });
   });
 });
@@ -278,7 +293,7 @@ router.post('/logout', (req, res) => {
  */
 router.get('/ip', (req, res) => {
   const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  res.json({ ip: clientIp });
+  return res.json({ ip: clientIp });
 });
 
 /**
@@ -318,12 +333,12 @@ router.post('/emailDuplicated', async (req, res) => {
   try{
     const result = await read(table,columns,conditions);
     if (result.length > 0) {
-      return res.status(401).json({code: 401, message: '중복된 이메일'});
+      return res.json(clientErrorResponse('중복된 이메일'));
     }
-    res.status(200).json({ code: 200, message: '중복되지않음'});
+    return res.json(successResponse('중복되지않음'));
   }catch(err){
     console.log(err);
-    res.status(500).json({ code: 500, message: '오류: 변경 실패' });
+    return res.json(serverErrorResponse('오류: 변경 실패'));
   }
 
 });
@@ -372,38 +387,31 @@ router.post('/emailDuplicated', async (req, res) => {
  */
 router.post('/signinUser', async  (req, res) => {
   const { email, password, name, phone, addr1, addr2 } = req.body;
-
   try {
-    // 비밀번호 해싱
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+    
     //date_of_joining은 현재시간 auth_code는 기본값으로 설정
     const sqlQuery = `
-      INSERT INTO user (email, password, user_name, tel_number, address, address_detail, date_of_joining, auth_code)
-      VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE(), 'N0')
-      `;
+    INSERT INTO user (email, password, user_name, tel_number, address, address_detail, date_of_joining, auth_code, is_deleted)
+    VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE(), 'N0', 0)
+    `;
+    // 비밀번호 해싱
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const params = [email, hashedPassword, name, phone, addr1, addr2];
 
-    db.query(
-      sqlQuery,
-      [email, hashedPassword, name, phone, addr1, addr2],
-      (err, result) => {
-        if (err) {
-          // 중복된 이메일 처리
-          if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(401).send('이미 존재하는 이메일입니다.');
-          }
-          // 기타 오류 처리
-          return res.status(500).send('서버 오류: ' + err.message);
-        }
-
-        // 성공 응답
-        res.status(200).send('회원가입 성공');
+    try {
+      await queryAsync(sqlQuery, params);
+      return res.json(successResponse('회원가입 성공'));
+    } catch (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.json(clientErrorResponse('이미 존재하는 이메일입니다.'));
       }
-    );
+      throw err;
+    }
+    
   } catch (error) {
     // 비동기 로직에서 발생한 에러 처리
     console.error(error);
-    res.status(500).send('서버 오류: 비밀번호 암호화 실패');
+    return res.json(serverErrorResponse('서버 오류: 비밀번호 암호화 실패'));
   }
 });
 

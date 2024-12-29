@@ -72,6 +72,8 @@ const read = (table, columns = "*", conditions = {}, orderBy = "") => {
   const sql = `SELECT ${columnsClause} FROM ${table}${whereClause}${
     orderBy ? ` ORDER BY ${orderBy}` : ""
   }`;
+  console.log(sql);
+  console.log(values);
   return queryAsync(sql, values);
 };
 
