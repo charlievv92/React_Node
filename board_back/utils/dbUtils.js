@@ -30,6 +30,8 @@ const create = (table, data) => {
     .join(", ");
   const values = Object.values(data);
   const sql = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
+  console.log(sql);
+  console.log(values);
   return queryAsync(sql, values);
 };
 
@@ -44,25 +46,66 @@ const create = (table, data) => {
  */
 const read = (table, columns = "*", conditions = {}, orderBy = "") => {
   const columnsClause = Array.isArray(columns) ? columns.join(", ") : columns;
-
   const whereClauses = [];
   const values = [];
 
-  // conditions 객체를 순회하며 WHERE 절을 생성
   Object.keys(conditions).forEach((key) => {
-    if (Array.isArray(conditions[key])) {
-      const placeholders = conditions[key].map(() => "?").join(", ");
-      whereClauses.push(`${key} IN (${placeholders})`);
-      values.push(...conditions[key]);
-    } else if (
-      typeof conditions[key] === "string" &&
-      conditions[key].includes("%")
+    const condition = conditions[key];
+
+    // 조건이 객체이고 type이 있는 경우
+    if (
+      typeof condition === "object" &&
+      !Array.isArray(condition) &&
+      condition.type
     ) {
-      whereClauses.push(`${key} LIKE ?`);
-      values.push(conditions[key].trim());
-    } else {
+      switch (condition.type) {
+        case "not":
+          whereClauses.push(`${key} != ?`);
+          values.push(condition.value);
+          break;
+        case "like":
+          whereClauses.push(`${key} LIKE ?`);
+          values.push(`%${condition.value}%`);
+          break;
+        case "gt":
+          whereClauses.push(`${key} > ?`);
+          values.push(condition.value);
+          break;
+        case "gte":
+          whereClauses.push(`${key} >= ?`);
+          values.push(condition.value);
+          break;
+        case "lt":
+          whereClauses.push(`${key} < ?`);
+          values.push(condition.value);
+          break;
+        case "lte":
+          whereClauses.push(`${key} <= ?`);
+          values.push(condition.value);
+          break;
+        case "in":
+          if (Array.isArray(condition.value)) {
+            const placeholders = condition.value.map(() => "?").join(", ");
+            whereClauses.push(`${key} IN (${placeholders})`);
+            values.push(...condition.value);
+          }
+          break;
+        case "is":
+          whereClauses.push(`${key} = ?`);
+          values.push(condition.value);
+          break;
+      }
+    }
+    // 배열인 경우 IN 처리
+    else if (Array.isArray(condition)) {
+      const placeholders = condition.map(() => "?").join(", ");
+      whereClauses.push(`${key} IN (${placeholders})`);
+      values.push(...condition);
+    }
+    // 나머지 경우는 일반 등호 비교
+    else {
       whereClauses.push(`${key} = ?`);
-      values.push(conditions[key]);
+      values.push(condition);
     }
   });
 
@@ -72,6 +115,8 @@ const read = (table, columns = "*", conditions = {}, orderBy = "") => {
   const sql = `SELECT ${columnsClause} FROM ${table}${whereClause}${
     orderBy ? ` ORDER BY ${orderBy}` : ""
   }`;
+  console.log(sql);
+  console.log(values);
   return queryAsync(sql, values);
 };
 
@@ -91,20 +136,69 @@ const update = (table, data, conditions) => {
   const values = [...Object.values(data)];
 
   Object.keys(conditions).forEach((key) => {
-    // 조건이 배열인 경우 IN 연산자 사용하도록 수정
-    if (Array.isArray(conditions[key])) {
-      const placeholders = conditions[key].map(() => "?").join(", ");
+    const condition = conditions[key];
+
+    // 조건이 객체이고 type이 있는 경우
+    if (
+      typeof condition === "object" &&
+      !Array.isArray(condition) &&
+      condition.type
+    ) {
+      switch (condition.type) {
+        case "not":
+          whereClauses.push(`${key} != ?`);
+          values.push(condition.value);
+          break;
+        case "like":
+          whereClauses.push(`${key} LIKE ?`);
+          values.push(`%${condition.value}%`);
+          break;
+        case "gt":
+          whereClauses.push(`${key} > ?`);
+          values.push(condition.value);
+          break;
+        case "gte":
+          whereClauses.push(`${key} >= ?`);
+          values.push(condition.value);
+          break;
+        case "lt":
+          whereClauses.push(`${key} < ?`);
+          values.push(condition.value);
+          break;
+        case "lte":
+          whereClauses.push(`${key} <= ?`);
+          values.push(condition.value);
+          break;
+        case "in":
+          if (Array.isArray(condition.value)) {
+            const placeholders = condition.value.map(() => "?").join(", ");
+            whereClauses.push(`${key} IN (${placeholders})`);
+            values.push(...condition.value);
+          }
+          break;
+        case "is":
+          whereClauses.push(`${key} = ?`);
+          values.push(condition.value);
+          break;
+      }
+    }
+    // 배열인 경우 IN 처리
+    else if (Array.isArray(condition)) {
+      const placeholders = condition.map(() => "?").join(", ");
       whereClauses.push(`${key} IN (${placeholders})`);
-      values.push(...conditions[key]);
-    } else {
-      // 조건이 배열이 아닌 경우
+      values.push(...condition);
+    }
+    // 나머지 경우는 일반 등호 비교
+    else {
       whereClauses.push(`${key} = ?`);
-      values.push(conditions[key]);
+      values.push(condition);
     }
   });
 
   const whereClause = whereClauses.join(" AND ");
   const sql = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
+  console.log(sql);
+  console.log(values);
   return queryAsync(sql, values);
 };
 
@@ -118,20 +212,70 @@ const remove = (table, conditions) => {
   const whereClauses = [];
   const values = [];
 
-  // 조건이 배열인 경우 IN 연산자 사용하도록 수정
   Object.keys(conditions).forEach((key) => {
-    if (Array.isArray(conditions[key])) {
-      const placeholders = conditions[key].map(() => "?").join(", ");
+    const condition = conditions[key];
+
+    // 조건이 객체이고 type이 있는 경우
+    if (
+      typeof condition === "object" &&
+      !Array.isArray(condition) &&
+      condition.type
+    ) {
+      switch (condition.type) {
+        case "not":
+          whereClauses.push(`${key} != ?`);
+          values.push(condition.value);
+          break;
+        case "like":
+          whereClauses.push(`${key} LIKE ?`);
+          values.push(`%${condition.value}%`);
+          break;
+        case "gt":
+          whereClauses.push(`${key} > ?`);
+          values.push(condition.value);
+          break;
+        case "gte":
+          whereClauses.push(`${key} >= ?`);
+          values.push(condition.value);
+          break;
+        case "lt":
+          whereClauses.push(`${key} < ?`);
+          values.push(condition.value);
+          break;
+        case "lte":
+          whereClauses.push(`${key} <= ?`);
+          values.push(condition.value);
+          break;
+        case "in":
+          if (Array.isArray(condition.value)) {
+            const placeholders = condition.value.map(() => "?").join(", ");
+            whereClauses.push(`${key} IN (${placeholders})`);
+            values.push(...condition.value);
+          }
+          break;
+        case "is":
+          whereClauses.push(`${key} = ?`);
+          values.push(condition.value);
+          break;
+      }
+    }
+    // 배열인 경우 IN 처리
+    else if (Array.isArray(condition)) {
+      const placeholders = condition.map(() => "?").join(", ");
       whereClauses.push(`${key} IN (${placeholders})`);
-      values.push(...conditions[key]);
-    } else {
+      values.push(...condition);
+    }
+    // 나머지 경우는 일반 등호 비교
+    else {
       whereClauses.push(`${key} = ?`);
-      values.push(conditions[key]);
+      values.push(condition);
     }
   });
 
   const whereClause = whereClauses.join(" AND ");
   const sql = `DELETE FROM ${table} WHERE ${whereClause}`;
+  console.log(sql);
+  console.log(values);
   return queryAsync(sql, values);
 };
 
