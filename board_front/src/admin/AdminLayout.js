@@ -9,16 +9,6 @@ export default function AdminLayout() {
 
   const [selectedMenu, setSelectedMenu] = useState("");
   const [pageTitle, setPageTitle] = useState("");
-  // //TODO:react-router 사용할것
-  // const renderContent = () => {
-
-  //   if (selectedMenu === '유저목록') {
-  //     return <AdminUserList />;
-  //   } else if (selectedMenu === '게시글') {
-  //     return <AdminBoardList />;
-  //   }
-  //   return null;
-  // };
 
   return (
     <Box sx={{ width: "100%", maxWidth: "100%", minHeight: "100vh" }}>

@@ -21,6 +21,7 @@ import ColorModeSelect from "../../shared-theme/ColorModeSelect";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { connectSocket, initializeSocket } from "../socket";
+import axios from "axios";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -97,23 +98,22 @@ export default function SignIn(props) {
     const password = data.get("password");
 
     try {
-      const response = await fetch(
-        process.env.REACT_APP_SERVER_URL + "/api/auth/login",
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/auth/login`,
+        { email, password },
         {
-          method: "POST",
+          withCredentials: true, // 쿠키 포함
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", // 쿠키 포함
-          body: JSON.stringify({ email, password }),
         }
       );
 
-      if (response.ok) {
+      if (response.data.code === 200) {
         const socket = initializeSocket();
         
         console.log("로그인 성공");
-        const responseData = await response.json(); // JSON 응답 파싱
+        const responseData = response.data.data;
 
         //Context상태 Set
         setUser(responseData.user);
@@ -123,7 +123,8 @@ export default function SignIn(props) {
         const from = location.state?.from?.pathname || "/"; // 이전 페이지 정보
         navigate(from); // 이전 페이지로 이동
       } else {
-        const errorMessage = await response.text();
+        console.log(response)
+        const errorMessage = await response.data.message;
         setLoginFailMessage(errorMessage);
       }
     } catch (error) {

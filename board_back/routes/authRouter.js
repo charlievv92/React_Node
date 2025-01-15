@@ -1,4 +1,5 @@
 const express = require("express");
+const knex = require("../config/knex");
 const router = express.Router();
 const passport = require("../config/passport");
 const bcrypt = require("bcryptjs");
@@ -19,50 +20,14 @@ const {
   dataNotFoundErrorResponse,
   serverErrorResponse,
 } = require("../utils/responseUtils");
+const e = require("express");
+
 
 /**
  * @swagger
- * /api/auth/adminadd:
- *   post:
- *     summary: 어드민 계정 생성
- *     description: 어드민 계정 생성.
- *     tags:
- *        - Auth
- */
-router.post("/adminadd", async (req, res) => {
-  try {
-    const hashedPassword = await bcrypt.hash("123456", saltRounds);
-
-    //date_of_joining은 현재시간 auth_code는 기본값으로 설정
-    await create("user", {
-      email: "ad123@te.st",
-      password: hashedPassword,
-      user_name: "어드민",
-      tel_number: "TEST",
-      address: "TEST",
-      address_detail: "TEST",
-      date_of_joining: "2001-01-01",
-      auth_code: "SC",
-    });
-    res.json(successResponse('관리자 생성됨'));
-
-  } catch (error) {
-
-    if (error.code === 'ER_DUP_ENTRY') {
-      console.log('에러 : 관리자가 이미 등록되어있음.');
-      return res.json(clientErrorResponse('관리자가 이미 등록되어있음.'));
-    }
-
-    console.error('오류 : ', error);
-    return res.json(serverErrorResponse('서버 오류: 관리자 생성 실패'));
-  }
-});
-
-/**
- * @swagger
- * /api/auth/userList:
+ * /api/auth/users-ad:
  *   get:
- *     summary: 유저목록 반환(관리자 제외)
+ *     summary: 유저 목록 반환 (관리자 제외)
  *     description: 가입된 유저 목록을 반환합니다. (관리자 제외)
  *     tags:
  *       - Auth
@@ -74,70 +39,107 @@ router.post("/adminadd", async (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   email:
- *                     type: string
- *                     example: user@example.com
- *                   user_name:
- *                     type: string
- *                     example: 홍길동
- *                   date_of_joining:
- *                     type: string
- *                     format: date
- *                     example: 2023-12-01
- *                   auth_code:
- *                     type: string
- *                     example: T0
- *                   is_deleted:
- *                     type: boolean
- *                     example: false
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       email:
+ *                         type: string
+ *                         example: user@example.com
+ *                       user_name:
+ *                         type: string
+ *                         example: 홍길동
+ *                       date_of_joining:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2023-12-01T15:00:00.000Z"
+ *                       auth_code:
+ *                         type: string
+ *                         example: T0
+ *                       is_deleted:
+ *                         type: integer
+ *                         example: 0
+ *                 message:
+ *                   type: string
+ *                   example: "Success"
+ *       401:
+ *         description: 인증 실패
+ *       500:
+ *         description: 서버 오류
+ *   put:
+ *     summary: 유저 정보 업데이트
+ *     description: 선택된 유저의 정보를 업데이트합니다. (삭제, 복원, 권한 변경)
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [delete, restore, updateAuth]
+ *                 example: delete
+ *               selectedUsers:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   example: user@example.com
+ *     responses:
+ *       200:
+ *         description: 유저 정보 변경 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: "유저 정보 변경 성공"
+ *       400:
+ *         description: action 또는 selectedUsers가 누락되었습니다.
  *       401:
  *         description: 인증 실패
  *       500:
  *         description: 서버 오류
  */
-router.get('/userList' , async (req, res) => {
+router.get("/users-ad" , async (req, res) => {
 
-  const table = 'user';
-  const columns = ['email', 'user_name', 'date_of_joining', 'auth_code', 'is_deleted'];
-  const conditions = {auth_code: '!A0'};
-  //TODO: 아닐경우 조건식 오류로 현재 조회되지않음.?
+  //TODO: 어드민 관련 api사용시 권한 확인 추가할것
   try{
-    const data = await read(table,columns,conditions);
+    const data = await knex
+      .select('email', 'user_name', 'date_of_joining', 'auth_code', 'is_deleted')
+      .from('user');
+      //TODO: 관리자 페이지에서 유저목록 보는요청인데 관리자이외만 표시하도록 추후 조건 변경
+      //.where('auth_code', '!=', 'SC');
     return res.json(successResponse(data));
   }catch(error){
     return res.json(serverErrorResponse('서버 오류: 목록읽기 실패'));
   }
 
 });
-/*
-router.get('/userList' , async (req, res) => {
 
-  const sqlQuery = `SELECT email, user_name, date_of_joining, auth_code, is_deleted FROM user WHERE auth_code!='A0'`;
-  try{
-    const data = await queryAsync(sqlQuery,[]);
-    res.status(200).json({ code: 200, data: data });
-  }catch(error){
-    res.status(500).json({ code: 500, message: '서버 오류: 목록읽기 실패' });
-  }
-});
-*/
-
-
-
-router.post("/userUpdateByAdmin", async (req, res) => {
+router.put("/users-ad", async (req, res) => {
   const { action, selectedUsers } = req.body;
-
+  console.log(selectedUsers);
   if (!action || !selectedUsers || selectedUsers.length === 0) {
     return res.json(clientErrorResponse("action 또는 selectedUsers가 누락되었습니다."));
   }
 
-  const table = 'user';
   var data = {};
-  const conditions = {email:selectedUsers};
 
   switch (action) {
     case "delete":
@@ -149,10 +151,24 @@ router.post("/userUpdateByAdmin", async (req, res) => {
       break;
 
     case "updateAuth":
-      // 권한 변경 (예: 모든 선택된 사용자의 권한을 'T1'로 변경)
-      // TODO: 값 넘겨와서 해당 권한으로 변경하는것 적용, 바로 아래 코드만 바꾸려는권한으로 바꿔주면됨 N0,등..
-      data= {auth_code:'T1'};
-      break;
+      //권한이 N0(일반회원)이면 관리자로 A0(관리자)면 일반회원으로
+      try {
+
+        await knex('user')
+          .update({
+            auth_code: knex.raw(`CASE 
+              WHEN auth_code = 'N0' THEN 'A0' 
+              WHEN auth_code = 'A0' THEN 'N0' 
+              ELSE auth_code 
+            END`)
+          })
+          .whereIn('email', selectedUsers);
+        return res.json(successResponse('유저 정보 변경 성공'));
+
+      } catch (error) {
+        console.error('Error updating auth_code:', error);
+        return res.json(serverErrorResponse('오류: 변경 실패'));
+      }
 
     default:
       return res.json(clientErrorResponse("유효하지 않은 action입니다."));
@@ -160,12 +176,13 @@ router.post("/userUpdateByAdmin", async (req, res) => {
 
 
   try{
-    await update(table, data, conditions);
+    await knex('user').update(data).whereIn('email',selectedUsers);
     return res.json(successResponse('유저 정보 변경 성공'));
   }catch(error){
     return res.json(serverErrorResponse('오류: 변경 실패'));
   }
 });
+
 
 /**
  * @swagger
@@ -198,14 +215,7 @@ router.post("/userUpdateByAdmin", async (req, res) => {
  */
 router.post("/login", (req, res, next) => {
   if (req.isAuthenticated()) {
-    return res.status(200).json({
-      message: "이미 로그인된 상태입니다.",
-      user: {
-        email: req.user.email,
-        userName: req.user.user_name,
-        authCode: req.user.auth_code,
-      },
-    });
+    return res.json(clientErrorResponse('이미로그인되어있음'));
   }
 
   passport.authenticate("local", (err, user, info) => {
@@ -221,14 +231,16 @@ router.post("/login", (req, res, next) => {
       if (err) {
         return res.json(serverErrorResponse('세션 생성 실패'));
       }
-      res.status(200).json({
-        message: "로그인 성공",
-        user: {
-          email: user.email,
-          userName: user.user_name,
-          authCode: user.auth_code,
-        },
-      });
+      const data = {
+        user: 
+          {
+            email: user.email,
+            userName: user.user_name,
+            authCode: user.auth_code,
+        
+          }
+      }
+      res.json(successResponse(data, '로그인 성공'))
     });
   })(req, res, next);
 });
@@ -319,17 +331,14 @@ router.get('/ip', (req, res) => {
  */
 router.post("/emailDuplicated", async (req, res) => {
   const { email } = req.body;
-  const table = "user";
-  const columns = "email";
-  const conditions = { email };
 
   try {
-    const result = await read(table, columns, conditions);
+    const result = await knex.select('email').from('user').where('email',email);
     if (result.length > 0) {
       return res.json(clientErrorResponse('중복된 이메일'));
     }
     return res.json(successResponse('중복되지않음'));
-  }catch(err){
+  } catch(err) {
     console.log(err);
     return res.json(serverErrorResponse('오류: 변경 실패'));
   }
@@ -379,27 +388,28 @@ router.post("/emailDuplicated", async (req, res) => {
 router.post("/signinUser", async (req, res) => {
   const { email, password, name, phone, addr1, addr2 } = req.body;
   try {
-    
-    //date_of_joining은 현재시간 auth_code는 기본값으로 설정
-    const sqlQuery = `
-    INSERT INTO user (email, password, user_name, tel_number, address, address_detail, date_of_joining, auth_code, is_deleted)
-    VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE(), 'N0', 0)
-    `;
     // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const params = [email, hashedPassword, name, phone, addr1, addr2];
 
-    try {
-      await queryAsync(sqlQuery, params);
-      return res.json(successResponse('회원가입 성공'));
-    } catch (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
-        return res.json(clientErrorResponse('이미 존재하는 이메일입니다.'));
-      }
-      throw err;
-    }
-    
+    await knex('user').insert({
+      email: email,
+      password: hashedPassword,
+      user_name: name,
+      tel_number: phone,
+      address: addr1,
+      address_detail: addr2,
+      date_of_joining: knex.fn.now(), // 현재 시간
+      auth_code: 'N0', // 기본값
+      is_deleted: 0 // 기본값
+    })
+
+    return res.json(successResponse('회원가입 성공'));
+
   } catch (error) {
+
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.json(clientErrorResponse('이미 존재하는 이메일입니다.'));
+    }
     // 비동기 로직에서 발생한 에러 처리
     console.error(error);
     return res.json(serverErrorResponse('서버 오류: 비밀번호 암호화 실패'));

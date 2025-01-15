@@ -26,7 +26,7 @@ export default function DataGridDemo() {
   const [selectedRows, setSelectedRows] = React.useState([]);
 
   const getUserList = async () => {
-    const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/auth/userList`);
+    const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/auth/users-ad`);
 
     const formatted = response.data.data.map((user, index) => ({
       id: user.email,
@@ -55,7 +55,7 @@ export default function DataGridDemo() {
     }else if(action==='restore'){
       message = selectedRows.length+'명의 계정을 복구할까요?';
     }else if(action==='updateAuth'){
-      message = selectedRows.length+'명의 계정 권한을 변경할까요?';
+      message = selectedRows.length+'명의 계정 권한을 변경할까요?\n일반회원은 관리자로, 관리자는 일반회원으로 변경됩니다.';
     }
 
     if (selectedRows.length === 0) {
@@ -68,11 +68,10 @@ export default function DataGridDemo() {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/userUpdateByAdmin`, {
+      const response = await axios.put(`${process.env.REACT_APP_SERVER_URL}/api/auth/users-ad`, {
         action, // 'delete', 'restore', 'updateAuth' 
         selectedUsers: selectedRows,
       });
-      console.log("응답:", response.data);
 
       getUserList();
       alert("변경 사항이 적용되었습니다.");
