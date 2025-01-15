@@ -1,10 +1,11 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const passport = require('../config/passport');
-const bcrypt = require('bcryptjs');
+const passport = require("../config/passport");
+const bcrypt = require("bcryptjs");
 const saltRounds = 10; // 해싱 라운드: 높을수록 보안 강하지만 속도 저하 있음
 
-const { //db객체
+const {
+  //db객체
   queryAsync,
   create,
   read,
@@ -19,31 +20,29 @@ const {
   serverErrorResponse,
 } = require("../utils/responseUtils");
 
-
 /**
  * @swagger
  * /api/auth/adminadd:
  *   post:
  *     summary: 어드민 계정 생성
  *     description: 어드민 계정 생성.
- *     tags: 
+ *     tags:
  *        - Auth
  */
-router.post('/adminadd', async  (req, res) => {
-
+router.post("/adminadd", async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash('123456', saltRounds);
+    const hashedPassword = await bcrypt.hash("123456", saltRounds);
 
     //date_of_joining은 현재시간 auth_code는 기본값으로 설정
-    await create('user',{
-      email:'ad123@te.st',
-      password:hashedPassword,
-      user_name:'어드민',
-      tel_number:'TEST',
-      address:"TEST",
-      address_detail:"TEST",
-      date_of_joining:'2001-01-01',
-      auth_code:'SC'
+    await create("user", {
+      email: "ad123@te.st",
+      password: hashedPassword,
+      user_name: "어드민",
+      tel_number: "TEST",
+      address: "TEST",
+      address_detail: "TEST",
+      date_of_joining: "2001-01-01",
+      auth_code: "SC",
     });
     res.json(successResponse('관리자 생성됨'));
 
@@ -65,7 +64,7 @@ router.post('/adminadd', async  (req, res) => {
  *   get:
  *     summary: 유저목록 반환(관리자 제외)
  *     description: 가입된 유저 목록을 반환합니다. (관리자 제외)
- *     tags: 
+ *     tags:
  *       - Auth
  *     security:
  *       - bearerAuth: []
@@ -124,16 +123,14 @@ router.get('/userList' , async (req, res) => {
   }catch(error){
     res.status(500).json({ code: 500, message: '서버 오류: 목록읽기 실패' });
   }
-
 });
 */
 
 
 
-router.post('/userUpdateByAdmin' , async (req, res) => {
-  
+router.post("/userUpdateByAdmin", async (req, res) => {
   const { action, selectedUsers } = req.body;
-  
+
   if (!action || !selectedUsers || selectedUsers.length === 0) {
     return res.json(clientErrorResponse("action 또는 selectedUsers가 누락되었습니다."));
   }
@@ -176,16 +173,16 @@ router.post('/userUpdateByAdmin' , async (req, res) => {
  *   post:
  *     summary: 로그인 요청
  *     description: 로그인폼에서 입력한 이메일, 패스워드로 로그인 요청을 처리합니다.
- *     tags: 
+ *     tags:
  *        - Auth
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               email: 
+ *               email:
  *                 type: string
  *                 example: "user@example.com"
  *               password:
@@ -199,8 +196,7 @@ router.post('/userUpdateByAdmin' , async (req, res) => {
  *       500:
  *         description: 서버 오류
  */
-router.post('/login', (req, res, next) => {
-  
+router.post("/login", (req, res, next) => {
   if (req.isAuthenticated()) {
     return res.status(200).json({
       message: "이미 로그인된 상태입니다.",
@@ -211,8 +207,8 @@ router.post('/login', (req, res, next) => {
       },
     });
   }
-  
-  passport.authenticate('local', (err, user, info) => {
+
+  passport.authenticate("local", (err, user, info) => {
     if (err) {
       return res.json(serverErrorResponse('서버 오류: ' + err.message));
     }
@@ -237,14 +233,13 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-
 /**
  * @swagger
  * /api/auth/logout:
  *   post:
  *     summary: 로그아웃 요청
  *     description: 로그인된 사용자의 세션을 종료하고 쿠키를 삭제합니다.
- *     tags: 
+ *     tags:
  *       - Auth
  *     responses:
  *       200:
@@ -252,7 +247,7 @@ router.post('/login', (req, res, next) => {
  *       500:
  *         description: 서버 오류 또는 로그아웃 실패
  */
-router.post('/logout', (req, res) => {
+router.post("/logout", (req, res) => {
   // Passport 로그아웃 처리
   req.logout((err) => {
     if (err) {
@@ -269,7 +264,6 @@ router.post('/logout', (req, res) => {
     });
   });
 });
-
 
 /**
  * @swagger
@@ -302,19 +296,19 @@ router.get('/ip', (req, res) => {
  *   post:
  *     summary: 이메일 중복검사
  *     description: 이미 가입되어있는 이메일인지 확인합니다.
- *     tags: 
+ *     tags:
  *        - Auth
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               email: 
+ *               email:
  *                 type: string
  *                 example: "user@example.com"
- *               
+ *
  *     responses:
  *       200:
  *         description: 중복되지않음
@@ -323,15 +317,14 @@ router.get('/ip', (req, res) => {
  *       500:
  *         description: 서버 오류
  */
-router.post('/emailDuplicated', async (req, res) => {
-
+router.post("/emailDuplicated", async (req, res) => {
   const { email } = req.body;
-  const table = 'user';
-  const columns = 'email';
+  const table = "user";
+  const columns = "email";
   const conditions = { email };
 
-  try{
-    const result = await read(table,columns,conditions);
+  try {
+    const result = await read(table, columns, conditions);
     if (result.length > 0) {
       return res.json(clientErrorResponse('중복된 이메일'));
     }
@@ -340,9 +333,7 @@ router.post('/emailDuplicated', async (req, res) => {
     console.log(err);
     return res.json(serverErrorResponse('오류: 변경 실패'));
   }
-
 });
-
 
 /**
  * @swagger
@@ -350,16 +341,16 @@ router.post('/emailDuplicated', async (req, res) => {
  *   post:
  *     summary: 회원가입
  *     description: 회원가입을 진행합니다 INSERT
- *     tags: 
+ *     tags:
  *        - Auth
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               email: 
+ *               email:
  *                 type: string
  *                 example: "user@example.com"
  *               password:
@@ -385,7 +376,7 @@ router.post('/emailDuplicated', async (req, res) => {
  *       500:
  *         description: 서버 오류
  */
-router.post('/signinUser', async  (req, res) => {
+router.post("/signinUser", async (req, res) => {
   const { email, password, name, phone, addr1, addr2 } = req.body;
   try {
     
@@ -421,7 +412,7 @@ router.post('/signinUser', async  (req, res) => {
  *   get:
  *     summary: 로그인 상태 확인
  *     description: 현재 로그인 상태를 반환합니다.
- *     tags: 
+ *     tags:
  *        - Auth
  *     responses:
  *       200:
@@ -443,7 +434,7 @@ router.post('/signinUser', async  (req, res) => {
  *                     authCode:
  *                       type: string
  */
-router.get('/status', (req, res) => {
+router.get("/status", (req, res) => {
   // Passport를 통해 인증(로그인)된 사용자인지 확인
   if (req.isAuthenticated()) {
     // 인증된 사용자 정보 반환
@@ -457,12 +448,9 @@ router.get('/status', (req, res) => {
   } else {
     // 인증되지 않은 상태
     res.status(200).json({
-      user:null
+      user: null,
     });
   }
 });
-
-
-
 
 module.exports = router;

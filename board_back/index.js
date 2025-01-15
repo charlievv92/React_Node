@@ -1,4 +1,9 @@
-require("dotenv").config(); // .env파일 읽기
+require("dotenv").config({
+  path:
+    process.env.NODE_ENV === "production"
+      ? ".env.production"
+      : ".env.development",
+}); // .env파일 읽기
 const express = require("express");
 const session = require("express-session");
 const RedisStore = require("connect-redis").default;
@@ -24,7 +29,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 // CORS 설정
 app.use(
   cors({
-    origin: "http://localhost:3000", // 클라이언트의 도메인
+    origin: process.env.CLIENT_APP_URL, // 클라이언트의 도메인
     methods: "GET,POST,PUT,DELETE,PATCH",
     credentials: true,
   })
@@ -57,6 +62,7 @@ app.use(
 //세션이나 쿠키가 존재 할경우 요청이 있을때 쿠키 지속시간을 갱신합니다.
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.originalUrl}`);
+  console.log(process.env.CLIENT_APP_URL);
   const io = getIO();
 
   if (req.originalUrl.startsWith("/api/auth/status")) {
