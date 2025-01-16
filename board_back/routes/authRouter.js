@@ -132,6 +132,7 @@ router.get("/users-ad" , async (req, res) => {
 
 });
 
+//TODO: patch로 수정
 router.put("/users-ad", async (req, res) => {
   const { action, selectedUsers } = req.body;
   console.log(selectedUsers);

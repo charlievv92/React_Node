@@ -50,7 +50,6 @@ export default function BoardWrite() {
         .then((response) => {
           // data = response.data;
           console.log("data : ", response.data);
-          //TODO:response.data.data[0] 에서 [0]제거 
           setData(response.data.data);
           //  setTitle(data.title);
           //  setContents(data.contents);

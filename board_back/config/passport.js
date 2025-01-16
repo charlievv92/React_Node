@@ -9,7 +9,7 @@ passport.use(
   new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
     
     try{
-      const result = await knex.select('email','password','is_deleted').from('user').where('email',email)
+      const result = await knex.select('email','password','is_deleted').from('user').where('email',email);
 
       //이메일로 유저조회 실패
       if (result.length === 0) {
